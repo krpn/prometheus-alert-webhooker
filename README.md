@@ -11,8 +11,8 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
     * run Jenkins job (with parameters)
     * run shell command
 * Alert labels/annotations can be used in action placeholders
-* Rules are set in config and can be flex
-* Supported config types JSON, TOML, YAML, HCL, and Java properties ([viper](https://github.com/spf13/viper) is used)
+* Rules are set in config and can be flex ([example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml))
+* Supported config types JSON, TOML, YAML, HCL, and Java properties ([Viper](https://github.com/spf13/viper) is used)
 * Supported config providers: file, etcd, consul (with automatic refresh)
 * Prometheus metrics built in
 

@@ -16,7 +16,7 @@ remote_config_refresh_interval: 60s
 # common params for actions
 common_parameters:
   jenkins_credentials:
-    endpoint: http://jenkins.example.com/
+    endpoint: https://jenkins.example.com/
     login: admin
     password: qwerty123
     state_refresh_delay: 5s
