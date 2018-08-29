@@ -19,7 +19,7 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 
 # Quick Start
 
-1. Prepare config-file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml)
+1. Prepare config.yaml file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml)
 
 2. Run container with command:
 
