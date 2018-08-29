@@ -22,11 +22,11 @@ jobs:
 
     - stage: Build and publish
       name: Docker Hub
+      if: branch = master
       install: skip
       script:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
-        - export REPO=$DOCKER_USER/prometheus-alert-webhooker
-        - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_TAG ; fi`
-        - echo $REPO:$TAG
-        - docker build -f Dockerfile -t $REPO:$TAG .
-        - docker push $REPO
+        - export IMAGE=$DOCKER_USER/$DOCKER_REPOSITORY
+        - export TAG="latest"
+        - docker build -f Dockerfile -t IMAGE:$TAG .
+        - docker push IMAGE

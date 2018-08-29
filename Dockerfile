@@ -12,6 +12,7 @@ RUN \
     git clone https://github.com/krpn/prometheus-alert-webhooker && \
     cd prometheus-alert-webhooker && \
     dep ensure -v && \
+    go test -v ./... && \
     cd cmd/prometheus-alert-webhooker && \
     CGO_ENABLED=0 GOOS=linux go build -v -a -installsuffix cgo -o prometheus-alert-webhooker
 
