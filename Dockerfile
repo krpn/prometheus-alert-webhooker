@@ -3,7 +3,7 @@ FROM golang:1.11-alpine3.8 as builder
 RUN \
     cd / && \
     apk update && \
-    apk add --no-cache git ca-certificates make tzdata curl && \
+    apk add --no-cache git ca-certificates make tzdata curl gcc libc-dev && \
     curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 RUN \
