@@ -34,7 +34,7 @@ rules:
   - type: jenkins
     common_parameters: jenkins_credentials
     parameters:
-      job: ${ANNOTATION_WEBHOOKER_COMMAND} # job name from annotation jenkins_job
+      job: ${ANNOTATION_JENKINS_JOB} # job name from annotation jenkins_job
     block: 10m
 
 - name: LowDiskSpaceLogsFix
