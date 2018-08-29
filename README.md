@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/krpn/prometheus-alert-webhooker.svg?branch=master)](https://travis-ci.org/krpn/prometheus-alert-webhooker)
 [![Go Report Card](https://goreportcard.com/badge/github.com/krpn/prometheus-alert-webhooker)](https://goreportcard.com/report/github.com/krpn/prometheus-alert-webhooker)
 [![Coverage Status](https://coveralls.io/repos/github/krpn/prometheus-alert-webhooker/badge.svg?branch=master)](https://coveralls.io/github/krpn/prometheus-alert-webhooker?branch=master)
-[![](https://images.microbadger.com/badges/image/krpn/prometheus-alert-webhooker.svg)](https://microbadger.com/images/krpn/prometheus-alert-webhooker "Get your own image badge on microbadger.com")
+[![Docker Image](https://images.microbadger.com/badges/image/krpn/prometheus-alert-webhooker.svg)](https://microbadger.com/images/krpn/prometheus-alert-webhooker)
 [![License](https://img.shields.io/github/license/krpn/prometheus-alert-webhooker.svg)](https://github.com/krpn/prometheus-alert-webhooker/blob/master/LICENSE)
 
 Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/integrations/#alertmanager-webhook-receiver) to any action
@@ -19,7 +19,7 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 * Supported config types JSON, TOML, YAML, HCL, and Java properties ([Viper](https://github.com/spf13/viper) is used)
 * Supported config providers: file, etcd, consul (with automatic refresh)
 * Prometheus metrics built in
-* Docker container
+* A docker image available on [Docker Hub](https://hub.docker.com/r/krpn/prometheus-alert-webhooker/)
 
 # Quick Start
 
@@ -37,4 +37,4 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 
     `url: http://<server container runned on>:<port>/webhooker`
     
-5. Connect webhooker metrics exporter to your Prometheus (port the same)
+5. Add webhooker instance to [Prometheus scrape targets](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#%3Cscrape_config%3E) if needed (port is the same)
