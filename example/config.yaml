@@ -1,0 +1,49 @@
+# cache size for blocked tasks
+# 50 * 1024 * 1024 = 50 MB
+block_cache_size: 52428800
+
+# pool size for new tasks
+# locks webhook if overflow
+pool_size: 100
+
+# runners count for tasks execute
+runners: 10
+
+# remote config refresh interval
+# rules update only
+remote_config_refresh_interval: 60s
+
+# common params for actions
+common_parameters:
+  jenkins_credentials:
+    endpoint: http://jenkins.example.com/
+    login: admin
+    password: qwerty123
+    state_refresh_delay: 5s
+
+
+# list of rules to check and act
+rules:
+
+- name: JenkinsAutofix
+  conditions:
+    alert_annotations:
+      webhooker_jenkins_autofix: enabled # autofix enabled
+      jenkins_job: (.*?)                 # jenkins job is set
+  actions:
+  - type: jenkins
+    common_parameters: jenkins_credentials
+    parameters:
+      job: ${ANNOTATION_WEBHOOKER_COMMAND} # job name from annotation jenkins_job
+    block: 10m
+
+- name: LowDiskSpaceLogsFix
+  conditions:
+    alert_labels:
+      alertname: LowDiskSpace
+      instance: ^logs_(.*?)
+  actions:
+  - type: shell
+    parameters:
+      command: ./clean.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}
+    block: 30m
