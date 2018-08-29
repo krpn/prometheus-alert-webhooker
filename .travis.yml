@@ -1,0 +1,40 @@
+language: go
+
+go:
+  - "1.11"
+
+jobs:
+  include:
+
+    - stage: Prepare
+      name: Dependencies
+      before_install:
+      - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      - dep ensure
+
+    - stage: Tests
+      name: Unit Tests
+      install:
+      - go get golang.org/x/tools/cmd/cover
+      - go get github.com/mattn/goveralls
+      script:
+        - go test -v -covermode=count -coverprofile=coverage.out
+        - $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
+
+    - stage: Build and publish
+      name: Docker Hub
+      script:
+        - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        - export REPO=$DOCKER_USER/prometheus-alert-webhooker
+        - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_TAG ; fi`
+        - echo $REPO:$TAG
+        - docker build -f Dockerfile -t $REPO:$TAG .
+        - docker push $REPO
+
+
+before_script:
+  - echo $TRAVIS_COMMIT
+  - echo $TRAVIS_TAG
+  - echo $TRAVIS_BRANCH
+  - echo $TRAVIS_BUILD_NUMBER
+  - echo $TRAVIS_REPO_SLUG
