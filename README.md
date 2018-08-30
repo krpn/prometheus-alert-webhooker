@@ -27,7 +27,13 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 
 2. Run container with command:
 
+    If you use file config:
+    
     `docker run -d -p <port>:8080 -v <path to config.yaml>:/config --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker -v`
+    
+    If you use Consul:
+    
+    `docker run -d -p <port>:8080 --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker -v -p consul -c http://<consul address>:8500/v1/kv/<path to config>`
 
 3. Check logs:
 
