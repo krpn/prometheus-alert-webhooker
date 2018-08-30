@@ -38,7 +38,7 @@ rules:
     alert_annotations:
       webhooker_enabled: (.*?)
   actions:
-  - type: shell
+  - executor: shell
     parameters:
       command: ./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}
     block: 10m
@@ -47,7 +47,7 @@ rules:
     alert_annotations:
       webhooker_job: (.*?)
   actions:
-  - type: jenkins
+  - executor: jenkins
     common_parameters: jenkins1
     parameters:
       job_name: ${ANNOTATIONS_WEBHOOKER_JOB}
@@ -81,7 +81,7 @@ rules:
       },
       "actions": [
         {
-          "type": "shell",
+          "executor": "shell",
           "parameters": {
             "command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"
           },
@@ -98,7 +98,7 @@ rules:
       },
       "actions": [
         {
-          "type": "jenkins",
+          "executor": "jenkins",
           "common_parameters": "jenkins1",
           "parameters": {
             "job_name": "${ANNOTATIONS_WEBHOOKER_JOB}",
@@ -387,10 +387,10 @@ func TestNew(t *testing.T) {
 			expectedConfig: func() *Config { return getExpectedConfigCompiled(taskExecutors) },
 			expectedErr:    nil,
 			expectedLogs: []string{
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Type":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Type":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Type":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Type":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing Config: no changes","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Type":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Type":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":2,"level":"info","msg":"starts refreshing Config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Type":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Type":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":2,"level":"error","msg":"Config refresh error: watch remote Config error","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing Config: no changes","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":2,"level":"info","msg":"starts refreshing Config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":2,"level":"error","msg":"Config refresh error: watch remote Config error","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
 			},
 		},
 		{
@@ -445,8 +445,8 @@ func TestNew(t *testing.T) {
 			},
 			expectedErr: nil,
 			expectedLogs: []string{
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Type":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Type":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"testrule1","Conditions":{"AlertStatus":"firing","AlertLabels":{"a":"b"},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"aa":{}}},"Actions":[{"Type":"shell","CommonParameters":"","Parameters":{"command":"${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}"},"Block":10000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing Config: Config changed","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"testrule1","Conditions":{"AlertStatus":"firing","AlertLabels":{"a":"b"},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"aa":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}"},"Block":10000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing Config: Config changed","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
 			},
 		},
 		{
@@ -573,8 +573,8 @@ func TestRefreshDaemon(t *testing.T) {
 			},
 			expectedRules: model.Rules{getTestRuleCompiled(1, taskExecutors)},
 			expectedLogs: []string{
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Type":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Type":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"testrule1","Conditions":{"AlertStatus":"firing","AlertLabels":{"a":"b"},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"aa":{}}},"Actions":[{"Type":"shell","CommonParameters":"","Parameters":{"command":"${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}"},"Block":10000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing Config: Config changed","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
+				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
+				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"testrule1","Conditions":{"AlertStatus":"firing","AlertLabels":{"a":"b"},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"aa":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}"},"Block":10000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing Config: Config changed","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
 			},
 		},
 		{
@@ -588,8 +588,8 @@ func TestRefreshDaemon(t *testing.T) {
 			newConfig:     func() *Config { return nil },
 			expectedRules: getExpectedConfigCompiled(taskExecutors).Rules,
 			expectedLogs: []string{
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Type":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Type":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Type":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Type":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"error","msg":"Config refresh error: error","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
+				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
+				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"error","msg":"Config refresh error: error","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
 			},
 		},
 	}
@@ -788,7 +788,7 @@ func getExpectedConfigCompiled(taskExecutors map[string]executor.TaskExecutor) *
 			},
 			Actions: model.Actions{
 				{
-					Type: "shell",
+					Executor: "shell",
 					Parameters: map[string]interface{}{
 						"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
 					},
@@ -810,7 +810,7 @@ func getExpectedConfigCompiled(taskExecutors map[string]executor.TaskExecutor) *
 			},
 			Actions: model.Actions{
 				{
-					Type:             "jenkins",
+					Executor:         "jenkins",
 					CommonParameters: "jenkins1",
 					Parameters: map[string]interface{}{
 						"job_name": "${ANNOTATIONS_WEBHOOKER_JOB}",
@@ -858,7 +858,7 @@ func getExpectedConfigUncompiled() *Config {
 				},
 				Actions: model.Actions{
 					{
-						Type: "shell",
+						Executor: "shell",
 						Parameters: map[string]interface{}{
 							"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
 						},
@@ -879,7 +879,7 @@ func getExpectedConfigUncompiled() *Config {
 				},
 				Actions: model.Actions{
 					{
-						Type:             "jenkins",
+						Executor:         "jenkins",
 						CommonParameters: "jenkins1",
 						Parameters: map[string]interface{}{
 							"job_name": "${ANNOTATIONS_WEBHOOKER_JOB}",
@@ -912,7 +912,7 @@ func getTestRuleUncompiled(num int) model.Rule {
 		},
 		Actions: model.Actions{
 			{
-				Type: "shell",
+				Executor: "shell",
 				Parameters: map[string]interface{}{
 					"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 				},
@@ -938,7 +938,7 @@ func getTestRuleCompiled(num int, taskExecutors map[string]executor.TaskExecutor
 		},
 		Actions: model.Actions{
 			{
-				Type: "shell",
+				Executor: "shell",
 				Parameters: map[string]interface{}{
 					"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 				},

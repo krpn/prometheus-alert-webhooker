@@ -212,9 +212,9 @@ func (rule *Rule) prepareTaskExecutors(taskExecutors map[string]executor.TaskExe
 	}
 
 	for i, action := range rule.Actions {
-		TaskExecutor, ok := taskExecutors[strings.ToLower(action.Type)]
+		TaskExecutor, ok := taskExecutors[strings.ToLower(action.Executor)]
 		if !ok {
-			return fmt.Errorf("executor for action type %v not found", action.Type)
+			return fmt.Errorf("executor for action type %v not found", action.Executor)
 		}
 
 		err := TaskExecutor.ValidateParameters(action.Parameters)

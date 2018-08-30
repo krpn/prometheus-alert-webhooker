@@ -16,7 +16,7 @@ func New() *PrometheusMetrics {
 	incomeTasks := pr.NewCounterVec(
 		pr.CounterOpts{
 			Namespace: "prometheus",
-			Subsystem: "alert_trigger",
+			Subsystem: "alert_webhooker",
 			Name:      "income_tasks",
 			Help:      "Income tasks counter.",
 		},
@@ -26,7 +26,7 @@ func New() *PrometheusMetrics {
 	excutedTasks := pr.NewHistogramVec(
 		pr.HistogramOpts{
 			Namespace: "prometheus",
-			Subsystem: "alert_trigger",
+			Subsystem: "alert_webhooker",
 			Name:      "executed_tasks",
 			Help:      "Tasks with results and duration.",
 		},

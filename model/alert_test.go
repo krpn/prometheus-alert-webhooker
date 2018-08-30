@@ -253,7 +253,7 @@ func TestAlerts_ToTasks(t *testing.T) {
 					},
 					Actions: Actions{
 						{
-							Type: "shell",
+							Executor: "shell",
 							Parameters: map[string]interface{}{
 								"command": "some cmd",
 							},

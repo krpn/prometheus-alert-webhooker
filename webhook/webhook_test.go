@@ -51,7 +51,7 @@ func TestWebhook(t *testing.T) {
 					},
 					Actions: model.Actions{
 						{
-							Type: "shell",
+							Executor: "shell",
 							Parameters: map[string]interface{}{
 								"command": "curl ${ANNOTATION_URL}",
 							},
@@ -117,7 +117,7 @@ func TestWebhook(t *testing.T) {
 					},
 					Actions: model.Actions{
 						{
-							Type: "shell",
+							Executor: "shell",
 							Parameters: map[string]interface{}{
 								"command": "curl ${ANNOTATION_URL}",
 							},
@@ -222,7 +222,7 @@ func TestWebhook_RulesChanged(t *testing.T) {
 					},
 					Actions: model.Actions{
 						{
-							Type: "shell",
+							Executor: "shell",
 							Parameters: map[string]interface{}{
 								"command": "curl ${ANNOTATION_URL}",
 							},
@@ -268,7 +268,7 @@ func TestWebhook_RulesChanged(t *testing.T) {
 					},
 					Actions: model.Actions{
 						{
-							Type: "shell",
+							Executor: "shell",
 							Parameters: map[string]interface{}{
 								"command": "curl ${ANNOTATION_URL}",
 							},

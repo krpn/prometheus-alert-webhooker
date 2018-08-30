@@ -7,8 +7,8 @@ import (
 
 // Action describes direct action as an reaction of alert.
 type Action struct {
-	// Type of action: shell, jenkins, etc.
-	Type string `mapstructure:"type"`
+	// Executor of action: shell, jenkins, etc.
+	Executor string `mapstructure:"executor"`
 
 	// CommonParameters represents string for Config.CommonParameters map.
 	CommonParameters string `mapstructure:"common_parameters"`

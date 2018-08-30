@@ -11,11 +11,11 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 # Features
 
 * Converts Prometheus Alertmanager Webhook to any action using rules
-* Currently supports [action types](#action-types):
+* Currently supports actions (see [executors](#executors)):
     * run Jenkins job (optionally with parameters)
     * run shell command
 * Alert labels/annotations can be used in action placeholders
-* Rules are set in config and can be flex ([example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml))
+* Rules are set in config and can be flexible ([example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml))
 * Supported config types JSON, TOML, YAML, HCL, and Java properties ([Viper](https://github.com/spf13/viper) is used)
 * Supported config providers: file, etcd, consul (with automatic refresh)
 * Prometheus metrics built in
@@ -23,7 +23,7 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 
 # Quick Start
 
-1. Prepare config.yaml file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml) (details in [Configuration](#configuration))
+1. Prepare config.yaml file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml) (details in [configuration](#configuration))
 
 2. Run container with command ([cli options](#command-line-options)):
 
@@ -111,7 +111,7 @@ rules:
   # list of actions for this rule
   # (!) if few actions are match for alert all matched actions will be exec 
   actions:
-  - type: <action_type> # action type from available action types list 
+  - executor: <executor> # executor from available executor list 
     
     # get parameters from common if needed
     # common parameters has low priority to action parameters:
@@ -119,7 +119,7 @@ rules:
     # common_parameters: <parameters_set_1>
     
     # list of parameters for action
-    # (!) each action type cah have list of required parameters
+    # (!) each executor can have a list of required parameters
     # parameter values can contains placeholders fully in UPPER case:
     #   ${LABELS_<LABEL_N>} will be replaced by <label_value_n>
     #   ${ANNOTATIONS_<ANNOTATION_N>} will be replaced by <annotation_value_n>
@@ -144,11 +144,11 @@ rules:
     block: 10m
 ```
 
-# Action types
+# Executors
 
-Action types and it parameters described below.
+Executors and it parameters described below.
 
-## Type `jenkins`
+## Executor `jenkins`
 
 `jenkins` is used for run Jenkins jobs. Runner starts job, waits job finish and check it was successfull.
 
@@ -162,7 +162,7 @@ Action types and it parameters described below.
 | state_refresh_delay            | `duration` | (optional, default: 15s) How often runner will be refresh job status when executing                                          | `state_refresh_delay: 3s`                                      |
 | secure_interations_limit       | `integer`  | (optional, default: 1000) How many refresh status iterations will be until Job will be considered hung and runner release it | `secure_interations_limit: 500`                                |
 
-## Type `shell`
+## Executor `shell`
 
 `shell` is used for run unix shell command. *Remember: all shell scripts must be mounted if you use Docker.*
 
@@ -180,3 +180,10 @@ Usage: `prometheus-alert-webhooker [options]`
 | `-c`   | `string` | Path to config file with extension, can be link for etcd, consul providers | `config/config.yaml` |
 | `-l`   | `string` | HTTP port to listen on                                                     | `:8080`              |
 | `-v`   |          | Enable verbose logging                                                     |                      |
+
+# Exposed Prometheus metrics
+
+| Name                                        | Description                                                                                    | Labels                                     |
+|---------------------------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------|
+| `prometheus_alert_webhooker_income_tasks`   | Income tasks counter                                                                           | `rule` `alert` `executor`                  |
+| `prometheus_alert_webhooker_executed_tasks` | Executed tasks histogram with duration in seconds. `error` label is empty is no error occurred | `rule` `alert` `executor` `result` `error` |

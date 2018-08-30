@@ -35,7 +35,7 @@ func TestNewTasks(t *testing.T) {
 				rule := *getTestRuleCompiled(1)
 				rule.Actions = Actions{
 					{
-						Type: "shell",
+						Executor: "shell",
 						Parameters: map[string]interface{}{
 							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 						},
