@@ -8,6 +8,17 @@
 
 Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/integrations/#alertmanager-webhook-receiver) to any action
 
+# Table of Contents
+* [Features](#features)
+* [Quick Start](#quick-start)
+* [Configuration](#configuration)
+* [Executors](#executors)
+    * [Executor `jenkins`](#executor-jenkins)
+    * [Executor `shell`](#executor-shell)
+* [Command-Line Options](#command-line-options)
+* [Exposed Prometheus Metrics](#exposed-prometheus-metrics)
+* [Contribute](#contribute)
+
 # Features
 
 * Converts Prometheus Alertmanager Webhook to any action using rules
@@ -20,6 +31,8 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 * Supported config providers: file, etcd, consul (with automatic refresh)
 * Prometheus metrics built in
 * A docker image available on [Docker Hub](https://hub.docker.com/r/krpn/prometheus-alert-webhooker/)
+
+[(back to top)](#prometheus-alert-webhooker)
 
 # Quick Start
 
@@ -44,6 +57,8 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
     `url: http://<server container runned on>:<port>/webhooker`
     
 5. Add webhooker instance to [Prometheus scrape targets](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#%3Cscrape_config%3E) if needed (port is the same; [metrics](#exposed-prometheus-metrics))
+
+[(back to top)](#prometheus-alert-webhooker)
 
 # Configuration
 
@@ -144,6 +159,8 @@ rules:
     block: 10m
 ```
 
+[(back to top)](#prometheus-alert-webhooker)
+
 # Executors
 
 Executors and it parameters described below.
@@ -152,7 +169,7 @@ Executors and it parameters described below.
 
 `jenkins` is used for run Jenkins jobs. Runner starts job, waits job finish and check it was successfull.
 
-| Parameter                      | Value Type | Description                                                                                                                  | Example                                                        |
+| Parameter                      | Type       | Description                                                                                                                  | Example                                                        |
 |--------------------------------|:----------:|------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
 | endpoint                       | `string`   | Jenkins address                                                                                                              | `endpoint: https://jenkins.example.com/`                       |
 | login                          | `string`   | Jenkins login                                                                                                                | `login: webhooker`                                             |
@@ -166,9 +183,11 @@ Executors and it parameters described below.
 
 `shell` is used for run unix shell command. *Remember: all shell scripts must be mounted if you use Docker.*
 
-| Parameter | Value Type | Description         | Example                               |
+| Parameter | Type       | Description         | Example                               |
 |-----------|:----------:|---------------------|---------------------------------------|
 | command   | `string`   | Command for execute | `command: ./clean.sh ${LABEL_FOLDER}` |
+
+[(back to top)](#prometheus-alert-webhooker)
 
 # Command-Line Options
 
@@ -181,9 +200,19 @@ Usage: `prometheus-alert-webhooker [options]`
 | `-l`   | `string` | HTTP port to listen on                                                     | `:8080`              |
 | `-v`   |          | Enable verbose logging                                                     |                      |
 
-# Exposed Prometheus metrics
+[(back to top)](#prometheus-alert-webhooker)
+
+# Exposed Prometheus Metrics
 
 | Name                                        | Description                                                                                    | Labels                                     |
 |---------------------------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------|
 | `prometheus_alert_webhooker_income_tasks`   | Income tasks counter                                                                           | `rule` `alert` `executor`                  |
 | `prometheus_alert_webhooker_executed_tasks` | Executed tasks histogram with duration in seconds. `error` label is empty is no error occurred | `rule` `alert` `executor` `result` `error` |
+
+[(back to top)](#prometheus-alert-webhooker)
+
+# Contribute
+
+Please feel free to send me [pull requests](https://github.com/krpn/prometheus-alert-webhooker/pulls).
+
+[(back to top)](#prometheus-alert-webhooker)
