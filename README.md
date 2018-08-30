@@ -1,12 +1,8 @@
 # prometheus-alert-webhooker
 
-[![Build Status](https://travis-ci.org/krpn/prometheus-alert-webhooker.svg?branch=master)](https://travis-ci.org/krpn/prometheus-alert-webhooker)
-[![Go Report Card](https://goreportcard.com/badge/github.com/krpn/prometheus-alert-webhooker)](https://goreportcard.com/report/github.com/krpn/prometheus-alert-webhooker)
-[![Coverage Status](https://coveralls.io/repos/github/krpn/prometheus-alert-webhooker/badge.svg?branch=master)](https://coveralls.io/github/krpn/prometheus-alert-webhooker?branch=master)
-[![Docker Image](https://images.microbadger.com/badges/image/krpn/prometheus-alert-webhooker.svg)](https://microbadger.com/images/krpn/prometheus-alert-webhooker)
-[![License](https://img.shields.io/github/license/krpn/prometheus-alert-webhooker.svg)](https://github.com/krpn/prometheus-alert-webhooker/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/krpn/prometheus-alert-webhooker.svg?branch=master)](https://travis-ci.org/krpn/prometheus-alert-webhooker) [![Go Report Card](https://goreportcard.com/badge/github.com/krpn/prometheus-alert-webhooker)](https://goreportcard.com/report/github.com/krpn/prometheus-alert-webhooker) [![Coverage Status](https://coveralls.io/repos/github/krpn/prometheus-alert-webhooker/badge.svg?branch=master)](https://coveralls.io/github/krpn/prometheus-alert-webhooker?branch=master) [![License](https://img.shields.io/github/license/krpn/prometheus-alert-webhooker.svg)](https://github.com/krpn/prometheus-alert-webhooker/blob/master/LICENSE)
 
-Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/integrations/#alertmanager-webhook-receiver) to any action
+prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/integrations/#alertmanager-webhook-receiver) to any action
 
 # Table of Contents
 * [Features](#features)
