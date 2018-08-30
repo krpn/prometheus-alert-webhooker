@@ -11,11 +11,11 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 # Features
 
 * Converts Prometheus Alertmanager Webhook to any action using rules
-* Currently supports action types:
-    * run Jenkins job (with parameters)
+* Currently supports actions (see [executors](#executors)):
+    * run Jenkins job (optionally with parameters)
     * run shell command
 * Alert labels/annotations can be used in action placeholders
-* Rules are set in config and can be flex ([example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml))
+* Rules are set in config and can be flexible ([example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml))
 * Supported config types JSON, TOML, YAML, HCL, and Java properties ([Viper](https://github.com/spf13/viper) is used)
 * Supported config providers: file, etcd, consul (with automatic refresh)
 * Prometheus metrics built in
@@ -23,9 +23,9 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 
 # Quick Start
 
-1. Prepare config.yaml file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml). Details in [Configuration](#configuration)
+1. Prepare config.yaml file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml) (details in [configuration](#configuration))
 
-2. Run container with command:
+2. Run container with command ([cli options](#command-line-options)):
 
     If you use file config:
     
@@ -35,7 +35,7 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
     
     `docker run -d -p <port>:8080 --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker -v -p consul -c http://<consul address>:8500/v1/kv/<path to config>`
 
-3. Check logs:
+3. Checkout logs:
 
     `docker logs prometheus-alert-webhooker`
 
@@ -43,7 +43,7 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 
     `url: http://<server container runned on>:<port>/webhooker`
     
-5. Add webhooker instance to [Prometheus scrape targets](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#%3Cscrape_config%3E) if needed (port is the same)
+5. Add webhooker instance to [Prometheus scrape targets](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#%3Cscrape_config%3E) if needed (port is the same; [metrics](#exposed-prometheus-metrics))
 
 # Configuration
 
@@ -61,7 +61,7 @@ block_cache_size: 52428800
 # default if not set: 0
 pool_size: 100
 
-# runners count for tasks execute
+# runners count for parallel actions execute
 # default if not set: 10
 runners: 10
 
@@ -111,15 +111,15 @@ rules:
   # list of actions for this rule
   # (!) if few actions are match for alert all matched actions will be exec 
   actions:
-  - type: <executor> # executor from available executors list 
+  - executor: <executor> # executor from available executor list 
     
     # get parameters from common if needed
     # common parameters has low priority to action parameters:
     #   the same parameter will be replaced by action parameter
     # common_parameters: <parameters_set_1>
     
-    # list of parameters to pass to executor
-    # (!) each executor cah have list of required parameters
+    # list of parameters for action
+    # (!) each executor can have a list of required parameters
     # parameter values can contains placeholders fully in UPPER case:
     #   ${LABELS_<LABEL_N>} will be replaced by <label_value_n>
     #   ${ANNOTATIONS_<ANNOTATION_N>} will be replaced by <annotation_value_n>
@@ -148,16 +148,42 @@ rules:
 
 Executors and it parameters described below.
 
-## Jenkins
+## Executor `jenkins`
 
-Jenkins executor is used for run jobs. It starts job, waits job finish and check it was successfull.
+`jenkins` is used for run Jenkins jobs. Runner starts job, waits job finish and check it was successfull.
 
-| Parameter                      | Type       | Description                                                                                                                    | Example                                                      |
-|--------------------------------|:----------:|--------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| endpoint                       | `string`   | Jenkins address                                                                                                                | endpoint: https://jenkins.example.com/                       |
-| login                          | `string`   | Jenkins login                                                                                                                  | login: webhooker                                             |
-| password                       | `string`   | Jenkins password                                                                                                               | password: qwerty123                                          |
-| job                            | `string`   | Name of job to run. If you use Jenkins Folders Plugin you need set the full path to job                                        | job: YourJob or Folder/job/YourJob (Folders Plugin)          |
-| job parameter <parameter_name> | `string`   | (optional) Pass <parameter_name> to job                                                                                        | job parameter server: ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} |
-| state_refresh_delay            | `duration` | (optional, default: 15s) How often executor will be refresh job status when executing                                          | state_refresh_delay: 3s                                      |
-| secure_interations_limit       | `integer`  | (optional, default: 1000) How many refresh status iterations will be until Job will be considered hung and executor release it | secure_interations_limit: 500                                |
+| Parameter                      | Value Type | Description                                                                                                                  | Example                                                        |
+|--------------------------------|:----------:|------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| endpoint                       | `string`   | Jenkins address                                                                                                              | `endpoint: https://jenkins.example.com/`                       |
+| login                          | `string`   | Jenkins login                                                                                                                | `login: webhooker`                                             |
+| password                       | `string`   | Jenkins password                                                                                                             | `password: qwerty123`                                          |
+| job                            | `string`   | Name of job to run. If you use Jenkins Folders Plugin you need set the full path to job                                      | `job: YourJob or Folder/job/YourJob (Folders Plugin)`          |
+| job parameter <parameter_name> | `string`   | (optional) Pass <parameter_name> to job                                                                                      | `job parameter server: ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}` |
+| state_refresh_delay            | `duration` | (optional, default: 15s) How often runner will be refresh job status when executing                                          | `state_refresh_delay: 3s`                                      |
+| secure_interations_limit       | `integer`  | (optional, default: 1000) How many refresh status iterations will be until Job will be considered hung and runner release it | `secure_interations_limit: 500`                                |
+
+## Executor `shell`
+
+`shell` is used for run unix shell command. *Remember: all shell scripts must be mounted if you use Docker.*
+
+| Parameter | Value Type | Description         | Example                               |
+|-----------|:----------:|---------------------|---------------------------------------|
+| command   | `string`   | Command for execute | `command: ./clean.sh ${LABEL_FOLDER}` |
+
+# Command-Line Options
+
+Usage: `prometheus-alert-webhooker [options]`
+
+| Option | Type     | Description                                                                | Default              |
+|--------|:--------:|----------------------------------------------------------------------------|----------------------|
+| `-p`   | `string` | Config provider: file, etcd, consul                                        | `file`               |
+| `-c`   | `string` | Path to config file with extension, can be link for etcd, consul providers | `config/config.yaml` |
+| `-l`   | `string` | HTTP port to listen on                                                     | `:8080`              |
+| `-v`   |          | Enable verbose logging                                                     |                      |
+
+# Exposed Prometheus metrics
+
+| Name                                        | Description                                                                                    | Labels                                     |
+|---------------------------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------|
+| `prometheus_alert_webhooker_income_tasks`   | Income tasks counter                                                                           | `rule` `alert` `executor`                  |
+| `prometheus_alert_webhooker_executed_tasks` | Executed tasks histogram with duration in seconds. `error` label is empty is no error occurred | `rule` `alert` `executor` `result` `error` |

@@ -350,7 +350,7 @@ func TestRules_Prepare(t *testing.T) {
 					}
 					rule.Actions = Actions{
 						{
-							Type: "shell",
+							Executor: "shell",
 							Parameters: map[string]interface{}{
 								"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 							},
@@ -428,7 +428,7 @@ func TestRules_Prepare(t *testing.T) {
 					}
 					rule.Actions = Actions{
 						{
-							Type: "shell",
+							Executor: "shell",
 							Parameters: map[string]interface{}{
 								"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 							},
@@ -526,7 +526,7 @@ func TestRule_mergeCommonParameters(t *testing.T) {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
 					{
-						Type:             "shell",
+						Executor:         "shell",
 						CommonParameters: "jenkins",
 						Parameters: map[string]interface{}{
 							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
@@ -546,7 +546,7 @@ func TestRule_mergeCommonParameters(t *testing.T) {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
 					{
-						Type:             "shell",
+						Executor:         "shell",
 						CommonParameters: "jenkins",
 						Parameters: map[string]interface{}{
 							"command":  "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
@@ -565,7 +565,7 @@ func TestRule_mergeCommonParameters(t *testing.T) {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
 					{
-						Type:             "shell",
+						Executor:         "shell",
 						CommonParameters: "jenkins",
 						Parameters: map[string]interface{}{
 							"password": "abcfromparams",
@@ -586,7 +586,7 @@ func TestRule_mergeCommonParameters(t *testing.T) {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
 					{
-						Type:             "shell",
+						Executor:         "shell",
 						CommonParameters: "jenkins",
 						Parameters: map[string]interface{}{
 							"command":  "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
@@ -605,7 +605,7 @@ func TestRule_mergeCommonParameters(t *testing.T) {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
 					{
-						Type:             "shell",
+						Executor:         "shell",
 						CommonParameters: "gitlab",
 						Parameters: map[string]interface{}{
 							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
@@ -625,7 +625,7 @@ func TestRule_mergeCommonParameters(t *testing.T) {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
 					{
-						Type:             "shell",
+						Executor:         "shell",
 						CommonParameters: "gitlab",
 						Parameters: map[string]interface{}{
 							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
@@ -693,7 +693,7 @@ func TestRule_prepareTaskExecutors(t *testing.T) {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
 					{
-						Type: "shell",
+						Executor: "shell",
 						Parameters: map[string]interface{}{
 							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 						},
@@ -731,7 +731,7 @@ func TestRule_prepareTaskExecutors(t *testing.T) {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
 					{
-						Type: "jenkins",
+						Executor: "jenkins",
 						Parameters: map[string]interface{}{
 							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 						},
@@ -746,7 +746,7 @@ func TestRule_prepareTaskExecutors(t *testing.T) {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
 					{
-						Type: "jenkins",
+						Executor: "jenkins",
 						Parameters: map[string]interface{}{
 							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 						},
@@ -784,7 +784,7 @@ func getTestRuleUncompiled(num int) *Rule {
 		},
 		Actions: Actions{
 			{
-				Type: "shell",
+				Executor: "shell",
 				Parameters: map[string]interface{}{
 					"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 				},
@@ -810,7 +810,7 @@ func getTestRuleCompiled(num int) *Rule {
 		},
 		Actions: Actions{
 			{
-				Type: "shell",
+				Executor: "shell",
 				Parameters: map[string]interface{}{
 					"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 				},

@@ -31,7 +31,7 @@ rules:
       webhooker_jenkins_autofix: enabled # autofix enabled
       jenkins_job: (.*?)                 # jenkins job is set
   actions:
-  - type: jenkins
+  - executor: jenkins
     common_parameters: jenkins_credentials
     parameters:
       job: ${ANNOTATION_JENKINS_JOB} # job name from annotation jenkins_job
@@ -43,7 +43,7 @@ rules:
       alertname: LowDiskSpace
       instance: ^logs_(.*?)
   actions:
-  - type: shell
+  - executor: shell
     parameters:
       command: ./clean.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}
     block: 30m
