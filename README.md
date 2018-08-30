@@ -44,3 +44,101 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
     `url: http://<server container runned on>:<port>/webhooker`
     
 5. Add webhooker instance to [Prometheus scrape targets](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#%3Cscrape_config%3E) if needed (port is the same)
+
+# Configuration
+
+Configuration description based on YAML format:
+
+```yaml
+# WEBHOOKER GLOBAL SETTINGS
+# cache size for blocked tasks
+# calculate: 50 * 1024 * 1024 = 50 MB
+# default if not set: 52428800
+block_cache_size: 52428800
+
+# pool size for new tasks
+# locks webhook if overflow
+# default if not set: 0
+pool_size: 100
+
+# runners count for tasks execute
+# default if not set: 10
+runners: 10
+
+# remote config refresh interval
+# used only for etcd and consul config providers
+# rules including common parameters will be updated only
+# global settings exclude refresh interval will NOT be updated (restart is required)
+# will not refresh if zero
+# default if not set: 0s
+remote_config_refresh_interval: 60s
+
+
+# COMMON PARAMETERS FOR ACTIONS
+# available to get in rules-actions-common_parameters
+# can be used for storing credentials
+common_parameters:
+  # name of parameters set
+  <parameters_set_1>:
+    <parameter_1>: <parameter_1_value>
+    <parameter_n>: <parameter_n_value>
+
+
+# LIST OF RULES
+rules:
+- name: <rule_1> # rule name
+
+  # list of conditions for this rule
+  # values can be regexp
+  # regexp detecting by existence of regexp group
+  # if no regexp groups found value used as string
+  # matching with AND operator, ALL conditions must match
+  conditions:
+    # define alert status for match if needed
+    # default if not set: firing
+    alert_status: firing
+    
+    # list of alert labels for match
+    alert_labels:
+      <label_1>: <label_value_1>
+      <label_n>: <label_value_n>
+      
+    # list of alert annotations for match
+    alert_annotations:
+      <annotation_1>: <annotation_value_1>
+      <annotation_n>: <annotation_value_n>
+  
+  # list of actions for this rule
+  # (!) if few actions are match for alert all matched actions will be exec 
+  actions:
+  - type: <executor> # executor from available executors list 
+    
+    # get parameters from common if needed
+    # common parameters has low priority to action parameters:
+    #   the same parameter will be replaced by action parameter
+    # common_parameters: <parameters_set_1>
+    
+    # list of parameters to pass to executor
+    # parameter values can contains placeholders fully in UPPER case:
+    #   ${LABELS_<LABEL_N>} will be replaced by <label_value_n>
+    #   ${ANNOTATIONS_<ANNOTATION_N>} will be replaced by <annotation_value_n>
+    # each placeholder can have modificator (optionally): ${<MOD>LABELS_<LABEL_N>}
+    # <MOD> list:
+    #   URLENCODE_            - escapes the string so it can be safely placed inside a URL query
+    #   CUT_AFTER_LAST_COLON_ - cuts text after last colon, can be used for cut port from instance label
+    # examples:
+    #   ${LABEL_ALERTNAME} - alert name
+    #   ${ANNOTATIONS_COMMAND} - value from annotation "command"
+    #   ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} - instance without port
+    #   ${URLENCODE_ANNOTATIONS_SUMMARY} - urlencoded value from annotation "summary"
+    parameters:
+      <parameter_1>: <parameter_1_value>
+      <parameter_n>: <parameter_n_value>
+    
+    # block time for successfully executed action
+    # used for occasional exec
+    # (!) blocks unique set of parameters
+    # will not block if zero
+    # default if not set: 0s
+    block: 10m
+```

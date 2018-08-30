@@ -560,7 +560,7 @@ func TestRule_mergeCommonParameters(t *testing.T) {
 			},
 		},
 		{
-			tcase: "common parameters has low priority prior to parameters",
+			tcase: "common parameters has low priority to parameters",
 			rule: func() *Rule {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
