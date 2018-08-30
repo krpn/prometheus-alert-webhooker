@@ -152,23 +152,23 @@ Action types and it parameters described below.
 
 `jenkins` is used for run Jenkins jobs. Runner starts job, waits job finish and check it was successfull.
 
-| Parameter                      | Value Type | Description                                                                                                                  | Example                                                      |
-|--------------------------------|:----------:|------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| endpoint                       | `string`   | Jenkins address                                                                                                              | endpoint: https://jenkins.example.com/                       |
-| login                          | `string`   | Jenkins login                                                                                                                | login: webhooker                                             |
-| password                       | `string`   | Jenkins password                                                                                                             | password: qwerty123                                          |
-| job                            | `string`   | Name of job to run. If you use Jenkins Folders Plugin you need set the full path to job                                      | job: YourJob or Folder/job/YourJob (Folders Plugin)          |
-| job parameter <parameter_name> | `string`   | (optional) Pass <parameter_name> to job                                                                                      | job parameter server: ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} |
-| state_refresh_delay            | `duration` | (optional, default: 15s) How often runner will be refresh job status when executing                                          | state_refresh_delay: 3s                                      |
-| secure_interations_limit       | `integer`  | (optional, default: 1000) How many refresh status iterations will be until Job will be considered hung and runner release it | secure_interations_limit: 500                                |
+| Parameter                      | Value Type | Description                                                                                                                  | Example                                                        |
+|--------------------------------|:----------:|------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| endpoint                       | `string`   | Jenkins address                                                                                                              | `endpoint: https://jenkins.example.com/`                       |
+| login                          | `string`   | Jenkins login                                                                                                                | `login: webhooker`                                             |
+| password                       | `string`   | Jenkins password                                                                                                             | `password: qwerty123`                                          |
+| job                            | `string`   | Name of job to run. If you use Jenkins Folders Plugin you need set the full path to job                                      | `job: YourJob or Folder/job/YourJob (Folders Plugin)`          |
+| job parameter <parameter_name> | `string`   | (optional) Pass <parameter_name> to job                                                                                      | `job parameter server: ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}` |
+| state_refresh_delay            | `duration` | (optional, default: 15s) How often runner will be refresh job status when executing                                          | `state_refresh_delay: 3s`                                      |
+| secure_interations_limit       | `integer`  | (optional, default: 1000) How many refresh status iterations will be until Job will be considered hung and runner release it | `secure_interations_limit: 500`                                |
 
 ## Type `shell`
 
 `shell` is used for run unix shell command. *Remember: all shell scripts must be mounted if you use Docker.*
 
-| Parameter | Value Type | Description         | Example                             |
-|-----------|:----------:|---------------------|-------------------------------------|
-| command   | `string`   | Command for execute | command: ./clean.sh ${LABEL_FOLDER} |
+| Parameter | Value Type | Description         | Example                               |
+|-----------|:----------:|---------------------|---------------------------------------|
+| command   | `string`   | Command for execute | `command: ./clean.sh ${LABEL_FOLDER}` |
 
 # Command-Line Options
 
