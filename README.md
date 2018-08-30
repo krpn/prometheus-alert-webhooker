@@ -23,7 +23,7 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 
 # Quick Start
 
-1. Prepare config.yaml file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml)
+1. Prepare config.yaml file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml). Details in [Configuration](#configuration)
 
 2. Run container with command:
 
@@ -74,7 +74,7 @@ runners: 10
 remote_config_refresh_interval: 60s
 
 
-# COMMON PARAMETERS FOR ACTIONS
+# COMMON PARAMETERS FOR ACTIONS (optional)
 # available to get in rules-actions-common_parameters
 # can be used for storing credentials
 common_parameters:
@@ -96,7 +96,7 @@ rules:
   conditions:
     # define alert status for match if needed
     # default if not set: firing
-    alert_status: firing
+    # alert_status: firing
     
     # list of alert labels for match
     alert_labels:
@@ -119,6 +119,7 @@ rules:
     # common_parameters: <parameters_set_1>
     
     # list of parameters to pass to executor
+    # (!) each executor cah have list of required parameters
     # parameter values can contains placeholders fully in UPPER case:
     #   ${LABELS_<LABEL_N>} will be replaced by <label_value_n>
     #   ${ANNOTATIONS_<ANNOTATION_N>} will be replaced by <annotation_value_n>
@@ -137,7 +138,7 @@ rules:
     
     # block time for successfully executed action
     # used for occasional exec
-    # (!) blocks unique set of parameters
+    # (!) blocks only unique set of parameters for this action
     # will not block if zero
     # default if not set: 0s
     block: 10m
