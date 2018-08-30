@@ -43,7 +43,7 @@ Convert [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/i
 
     `url: http://<server container runned on>:<port>/webhooker`
     
-5. Add webhooker instance to [Prometheus scrape targets](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#%3Cscrape_config%3E) if needed (port is the same)
+5. Add webhooker instance to [Prometheus scrape targets](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#%3Cscrape_config%3E) if needed (port is the same; [metrics](#exposed-prometheus-metrics))
 
 # Configuration
 
