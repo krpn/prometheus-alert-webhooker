@@ -143,3 +143,21 @@ rules:
     # default if not set: 0s
     block: 10m
 ```
+
+# Executors
+
+Executors and it parameters described below.
+
+## Jenkins
+
+Jenkins executor is used for run jobs. It starts job, waits job finish and check it was successfull.
+
+| Parameter                      | Required | Description                                                                                                                                                                                                                     |
+|--------------------------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| endpoint                       | required | Jenkins address. Example: https://jenkins.example.com/                                                                                                                                                                          |
+| login                          | required | Jenkins login                                                                                                                                                                                                                   |
+| password                       | required | Jenkins password                                                                                                                                                                                                                |
+| job                            | required | Name of job to run. If you use Jenkins Folders Plugin you need set the full path to job. Examples: http://jenkins.example.com/job/YourJob/ → YourJob; http://jenkins.example.com/job/Folder/job/YourJob/ → Folder/job/YourJob |
+| job parameter <parameter_name> | optional | Pass <parameter_name> to Jenkins job                                                                                                                                                                                            |
+| state_refresh_delay            | optional | How often webhooker will be refresh job status when executing. Default if not set: 15s. Example: 5s                                                                                                                             |
+| secure_interations_limit       | optional | How many refresh status iterations will be until Job will be considered hung and runner release it. Default if not set: 1000. Example: 500                                                                                      |

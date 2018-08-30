@@ -17,7 +17,7 @@ remote_config_refresh_interval: 60s
 common_parameters:
   jenkins_credentials:
     endpoint: https://jenkins.example.com/
-    login: admin
+    login: webhooker
     password: qwerty123
     state_refresh_delay: 5s
 
