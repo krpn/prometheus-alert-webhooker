@@ -118,7 +118,7 @@ rules:
     #   the same parameter will be replaced by action parameter
     # common_parameters: <parameters_set_1>
     
-    # list of parameters to pass to action
+    # list of parameters for action
     # (!) each action type cah have list of required parameters
     # parameter values can contains placeholders fully in UPPER case:
     #   ${LABELS_<LABEL_N>} will be replaced by <label_value_n>
@@ -169,3 +169,14 @@ Action types and it parameters described below.
 | Parameter | Value Type | Description         | Example                             |
 |-----------|:----------:|---------------------|-------------------------------------|
 | command   | `string`   | Command for execute | command: ./clean.sh ${LABEL_FOLDER} |
+
+# Command-Line Options
+
+Usage: `prometheus-alert-webhooker [options]`
+
+| Option | Type     | Description                                                                | Default              |
+|--------|:--------:|----------------------------------------------------------------------------|----------------------|
+| `-p`   | `string` | Config provider: file, etcd, consul                                        | `file`               |
+| `-c`   | `string` | Path to config file with extension, can be link for etcd, consul providers | `config/config.yaml` |
+| `-l`   | `string` | HTTP port to listen on                                                     | `:8080`              |
+| `-v`   |          | Enable verbose logging                                                     |                      |
