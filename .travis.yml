@@ -21,7 +21,7 @@ jobs:
         - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
 
     - stage: Build and publish
-      name: Docker Hub
+      name: Container Build
       if: branch = master
       install: skip
       script:

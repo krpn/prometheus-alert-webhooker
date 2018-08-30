@@ -61,7 +61,7 @@ block_cache_size: 52428800
 # default if not set: 0
 pool_size: 100
 
-# runners count for tasks execute
+# runners count for parallel actions execute
 # default if not set: 10
 runners: 10
 
@@ -111,15 +111,15 @@ rules:
   # list of actions for this rule
   # (!) if few actions are match for alert all matched actions will be exec 
   actions:
-  - type: <executor> # executor from available executors list 
+  - type: <action_type> # action type from available action types list 
     
     # get parameters from common if needed
     # common parameters has low priority to action parameters:
     #   the same parameter will be replaced by action parameter
     # common_parameters: <parameters_set_1>
     
-    # list of parameters to pass to executor
-    # (!) each executor cah have list of required parameters
+    # list of parameters to pass to action
+    # (!) each action type cah have list of required parameters
     # parameter values can contains placeholders fully in UPPER case:
     #   ${LABELS_<LABEL_N>} will be replaced by <label_value_n>
     #   ${ANNOTATIONS_<ANNOTATION_N>} will be replaced by <annotation_value_n>
@@ -144,20 +144,20 @@ rules:
     block: 10m
 ```
 
-# Executors
+# Action types
 
-Executors and it parameters described below.
+Action types and it parameters described below.
 
-## Jenkins
+## Type `jenkins`
 
-Jenkins executor is used for run jobs. It starts job, waits job finish and check it was successfull.
+Jenkins is used for run jobs. Runner starts job, waits job finish and check it was successfull.
 
-| Parameter                      | Type       | Description                                                                                                                    | Example                                                      |
+| Parameter                      | Value Type | Description                                                                                                                    | Example                                                      |
 |--------------------------------|:----------:|--------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
 | endpoint                       | `string`   | Jenkins address                                                                                                                | endpoint: https://jenkins.example.com/                       |
 | login                          | `string`   | Jenkins login                                                                                                                  | login: webhooker                                             |
 | password                       | `string`   | Jenkins password                                                                                                               | password: qwerty123                                          |
 | job                            | `string`   | Name of job to run. If you use Jenkins Folders Plugin you need set the full path to job                                        | job: YourJob or Folder/job/YourJob (Folders Plugin)          |
 | job parameter <parameter_name> | `string`   | (optional) Pass <parameter_name> to job                                                                                        | job parameter server: ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} |
-| state_refresh_delay            | `duration` | (optional, default: 15s) How often executor will be refresh job status when executing                                          | state_refresh_delay: 3s                                      |
-| secure_interations_limit       | `integer`  | (optional, default: 1000) How many refresh status iterations will be until Job will be considered hung and executor release it | secure_interations_limit: 500                                |
+| state_refresh_delay            | `duration` | (optional, default: 15s) How often runner will be refresh job status when executing                                          | state_refresh_delay: 3s                                      |
+| secure_interations_limit       | `integer`  | (optional, default: 1000) How many refresh status iterations will be until Job will be considered hung and runner release it | secure_interations_limit: 500                                |
