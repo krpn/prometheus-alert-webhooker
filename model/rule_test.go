@@ -731,6 +731,36 @@ func TestRule_prepareTaskExecutors(t *testing.T) {
 				rule := getTestRuleUncompiled(1)
 				rule.Actions = Actions{
 					{
+						Parameters: map[string]interface{}{
+							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
+						},
+						Block: 10 * time.Second,
+					},
+				}
+				return rule
+			},
+			taskExecutors: map[string]executor.TaskExecutor{"shell": executorMock},
+			expectFunc:    func(e *executor.MockTaskExecutor) {},
+			expected: func() *Rule {
+				rule := getTestRuleUncompiled(1)
+				rule.Actions = Actions{
+					{
+						Parameters: map[string]interface{}{
+							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
+						},
+						Block: 10 * time.Second,
+					},
+				}
+				return rule
+			},
+			expectedErr: errRuleValidateEmptyExecutor,
+		},
+		{
+			tcase: "empty actions",
+			rule: func() *Rule {
+				rule := getTestRuleUncompiled(1)
+				rule.Actions = Actions{
+					{
 						Executor: "jenkins",
 						Parameters: map[string]interface{}{
 							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
@@ -755,7 +785,7 @@ func TestRule_prepareTaskExecutors(t *testing.T) {
 				}
 				return rule
 			},
-			expectedErr: errors.New("executor for action type jenkins not found"),
+			expectedErr: errors.New("executor jenkins not found"),
 		},
 	}
 

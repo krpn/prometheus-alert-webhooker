@@ -51,6 +51,7 @@ var (
 	errRuleValidateEmptyAnnotationLabelName  = errors.New("empty alert annotation name")
 	errRuleValidateEmptyAnnotationLabelValue = errors.New("empty alert annotation value")
 	errRuleValidateEmptyExecutors            = errors.New("empty executors")
+	errRuleValidateEmptyExecutor             = errors.New("empty executor")
 	errRuleValidateEmptyActions              = errors.New("empty actions")
 	errRuleValidateAlreadyCompiled           = errors.New("rules already compiled")
 )
@@ -212,9 +213,13 @@ func (rule *Rule) prepareTaskExecutors(taskExecutors map[string]executor.TaskExe
 	}
 
 	for i, action := range rule.Actions {
+		if len(action.Executor) == 0 {
+			return errRuleValidateEmptyExecutor
+		}
+
 		TaskExecutor, ok := taskExecutors[strings.ToLower(action.Executor)]
 		if !ok {
-			return fmt.Errorf("executor for action type %v not found", action.Executor)
+			return fmt.Errorf("executor %v not found", action.Executor)
 		}
 
 		err := TaskExecutor.ValidateParameters(action.Parameters)
