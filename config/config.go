@@ -27,8 +27,9 @@ type Config struct {
 
 const (
 	defaultConfigType     = "yaml"
-	defaultRunners        = 10
 	defaultBlockCacheSize = 50 * 1024 * 1024 // 50 MB
+	defaultPoolSize       = 100
+	defaultRunners        = 10
 
 	// ProviderFile constant represents correct string value of program parameter.
 	ProviderFile = "file"
@@ -193,6 +194,10 @@ func (c *Config) prepare(taskExecutors map[string]executor.TaskExecutor) (err er
 func (c *Config) fillDefaults() {
 	if c.BlockCacheSize <= 0 {
 		c.BlockCacheSize = defaultBlockCacheSize
+	}
+
+	if c.PoolSize <= 0 {
+		c.PoolSize = defaultPoolSize
 	}
 
 	if c.Runners <= 0 {

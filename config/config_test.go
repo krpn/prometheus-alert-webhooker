@@ -718,10 +718,24 @@ func TestConfig_fillDefaults(t *testing.T) {
 		{
 			tcase: "fill BlockCacheSize",
 			config: Config{
-				Runners: 10,
+				PoolSize: 100,
+				Runners:  10,
 			},
 			expected: Config{
 				BlockCacheSize: defaultBlockCacheSize,
+				PoolSize:       100,
+				Runners:        10,
+			},
+		},
+		{
+			tcase: "fill PoolSize",
+			config: Config{
+				BlockCacheSize: 10 * 1024 * 1024,
+				Runners:        10,
+			},
+			expected: Config{
+				BlockCacheSize: 10 * 1024 * 1024,
+				PoolSize:       defaultPoolSize,
 				Runners:        10,
 			},
 		},
@@ -729,9 +743,11 @@ func TestConfig_fillDefaults(t *testing.T) {
 			tcase: "fill Runners",
 			config: Config{
 				BlockCacheSize: 10 * 1024 * 1024,
+				PoolSize:       100,
 			},
 			expected: Config{
 				BlockCacheSize: 10 * 1024 * 1024,
+				PoolSize:       100,
 				Runners:        defaultRunners,
 			},
 		},

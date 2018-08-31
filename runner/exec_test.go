@@ -3,6 +3,7 @@ package runner
 import (
 	"errors"
 	"github.com/golang/mock/gomock"
+	"github.com/krpn/prometheus-alert-webhooker/executor"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
@@ -21,8 +22,8 @@ func Test_exec(t *testing.T) {
 
 	type testTableData struct {
 		tcase          execResult
-		task           *MockTask
-		expectFunc     func(t *MockTask, b *Mockblocker, l *logrus.Logger)
+		task           *executor.MockTask
+		expectFunc     func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger)
 		expectedResult execResult
 		expectedErr    error
 	}
@@ -30,8 +31,8 @@ func Test_exec(t *testing.T) {
 	testTable := []testTableData{
 		{
 			tcase: execResultSuccess,
-			task:  NewMockTask(ctrl),
-			expectFunc: func(t *MockTask, b *Mockblocker, l *logrus.Logger) {
+			task:  executor.NewMockTask(ctrl),
+			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
 				t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
 				t.EXPECT().Fingerprint().Return("testfp1")
 				b.EXPECT().Block("testfp1", 10*time.Minute).Return(true, nil)
@@ -42,8 +43,8 @@ func Test_exec(t *testing.T) {
 		},
 		{
 			tcase: execResultInBlock,
-			task:  NewMockTask(ctrl),
-			expectFunc: func(t *MockTask, b *Mockblocker, l *logrus.Logger) {
+			task:  executor.NewMockTask(ctrl),
+			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
 				t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
 				t.EXPECT().Fingerprint().Return("testfp1")
 				b.EXPECT().Block("testfp1", 10*time.Minute).Return(false, nil)
@@ -53,8 +54,8 @@ func Test_exec(t *testing.T) {
 		},
 		{
 			tcase: execResultBlockError,
-			task:  NewMockTask(ctrl),
-			expectFunc: func(t *MockTask, b *Mockblocker, l *logrus.Logger) {
+			task:  executor.NewMockTask(ctrl),
+			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
 				t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
 				t.EXPECT().Fingerprint().Return("testfp1")
 				b.EXPECT().Block("testfp1", 10*time.Minute).Return(false, errors.New("block error"))
@@ -64,8 +65,8 @@ func Test_exec(t *testing.T) {
 		},
 		{
 			tcase: execResultExecError,
-			task:  NewMockTask(ctrl),
-			expectFunc: func(t *MockTask, b *Mockblocker, l *logrus.Logger) {
+			task:  executor.NewMockTask(ctrl),
+			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
 				t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
 				t.EXPECT().Fingerprint().Return("testfp1").Times(2)
 				b.EXPECT().Block("testfp1", 10*time.Minute).Return(true, nil)
@@ -77,8 +78,8 @@ func Test_exec(t *testing.T) {
 		},
 		{
 			tcase: execResultSuccessWithoutBlock,
-			task:  NewMockTask(ctrl),
-			expectFunc: func(t *MockTask, b *Mockblocker, l *logrus.Logger) {
+			task:  executor.NewMockTask(ctrl),
+			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
 				t.EXPECT().BlockTTL().Return(0 * time.Minute)
 				t.EXPECT().Exec(l).Return(nil)
 			},
@@ -87,8 +88,8 @@ func Test_exec(t *testing.T) {
 		},
 		{
 			tcase: execResultExecErrorWithoutBlock,
-			task:  NewMockTask(ctrl),
-			expectFunc: func(t *MockTask, b *Mockblocker, l *logrus.Logger) {
+			task:  executor.NewMockTask(ctrl),
+			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
 				t.EXPECT().BlockTTL().Return(0 * time.Minute)
 				t.EXPECT().Exec(l).Return(errors.New("exec error"))
 			},

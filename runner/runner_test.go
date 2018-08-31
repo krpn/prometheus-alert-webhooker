@@ -26,8 +26,8 @@ func TestStart(t *testing.T) {
 	}
 
 	type expectTask struct {
-		task       *MockTask
-		expectFunc func(task *MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger)
+		task       *executor.MockTask
+		expectFunc func(task *executor.MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger)
 	}
 
 	type testTableData struct {
@@ -41,8 +41,8 @@ func TestStart(t *testing.T) {
 			tcase: "four tasks",
 			tasks: []expectTask{
 				{
-					task: NewMockTask(ctrl),
-					expectFunc: func(t *MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
+					task: executor.NewMockTask(ctrl),
+					expectFunc: func(t *executor.MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
 						t.EXPECT().BlockTTL().Return(0 * time.Second)
 						t.EXPECT().Exec(l).Return(nil)
 						t.EXPECT().EventID().Return("testid1")
@@ -54,8 +54,8 @@ func TestStart(t *testing.T) {
 					},
 				},
 				{
-					task: NewMockTask(ctrl),
-					expectFunc: func(t *MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
+					task: executor.NewMockTask(ctrl),
+					expectFunc: func(t *executor.MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
 						t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
 						t.EXPECT().Fingerprint().Return("testfp2")
 						b.EXPECT().Block("testfp2", 10*time.Minute).Return(false, nil)
@@ -68,8 +68,8 @@ func TestStart(t *testing.T) {
 					},
 				},
 				{
-					task: NewMockTask(ctrl),
-					expectFunc: func(t *MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
+					task: executor.NewMockTask(ctrl),
+					expectFunc: func(t *executor.MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
 						t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
 						t.EXPECT().Fingerprint().Return("testfp3")
 						b.EXPECT().Block("testfp3", 10*time.Minute).Return(true, nil)
@@ -83,8 +83,8 @@ func TestStart(t *testing.T) {
 					},
 				},
 				{
-					task: NewMockTask(ctrl),
-					expectFunc: func(t *MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
+					task: executor.NewMockTask(ctrl),
+					expectFunc: func(t *executor.MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
 						t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
 						t.EXPECT().Fingerprint().Return("testfp4").Times(2)
 						b.EXPECT().Block("testfp4", 10*time.Minute).Return(true, nil)

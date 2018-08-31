@@ -6,14 +6,15 @@ block_cache_size: 52428800
 # locks webhook if overflow
 pool_size: 100
 
-# runners count for tasks execute
+# runners count for parallel actions execute
 runners: 10
 
 # remote config refresh interval
-# rules update only
+# rules refreshed only
 remote_config_refresh_interval: 60s
 
-# common params for actions
+
+# common parameters for actions
 common_parameters:
   jenkins_credentials:
     endpoint: https://jenkins.example.com/
@@ -28,7 +29,7 @@ rules:
 - name: JenkinsAutofix
   conditions:
     alert_annotations:
-      webhooker_jenkins_autofix: enabled # autofix enabled
+      webhooker_jenkins_autofix: enabled # auto fix enabled
       jenkins_job: (.*?)                 # jenkins job is set
   actions:
   - executor: jenkins

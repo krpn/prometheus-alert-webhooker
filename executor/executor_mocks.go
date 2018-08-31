@@ -70,6 +70,18 @@ func (mr *MockTaskMockRecorder) Alert() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Alert", reflect.TypeOf((*MockTask)(nil).Alert))
 }
 
+// BlockTTL mocks base method
+func (m *MockTask) BlockTTL() time.Duration {
+	ret := m.ctrl.Call(m, "BlockTTL")
+	ret0, _ := ret[0].(time.Duration)
+	return ret0
+}
+
+// BlockTTL indicates an expected call of BlockTTL
+func (mr *MockTaskMockRecorder) BlockTTL() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockTTL", reflect.TypeOf((*MockTask)(nil).BlockTTL))
+}
+
 // ExecutorName mocks base method
 func (m *MockTask) ExecutorName() string {
 	ret := m.ctrl.Call(m, "ExecutorName")
@@ -116,18 +128,6 @@ func (m *MockTask) Exec(logger *logrus.Logger) error {
 // Exec indicates an expected call of Exec
 func (mr *MockTaskMockRecorder) Exec(logger interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exec", reflect.TypeOf((*MockTask)(nil).Exec), logger)
-}
-
-// BlockTTL mocks base method
-func (m *MockTask) BlockTTL() time.Duration {
-	ret := m.ctrl.Call(m, "BlockTTL")
-	ret0, _ := ret[0].(time.Duration)
-	return ret0
-}
-
-// BlockTTL indicates an expected call of BlockTTL
-func (mr *MockTaskMockRecorder) BlockTTL() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockTTL", reflect.TypeOf((*MockTask)(nil).BlockTTL))
 }
 
 // MockTaskExecutor is a mock of TaskExecutor interface

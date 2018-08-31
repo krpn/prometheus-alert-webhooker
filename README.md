@@ -69,7 +69,7 @@ block_cache_size: 52428800
 
 # pool size for new tasks
 # locks webhook if overflow
-# default if not set: 0
+# default if not set: 100
 pool_size: 100
 
 # runners count for parallel actions execute
@@ -78,8 +78,8 @@ runners: 10
 
 # remote config refresh interval
 # used only for etcd and consul config providers
-# rules including common parameters will be updated only
-# global settings exclude refresh interval will NOT be updated (restart is required)
+# rules including common parameters will be refreshed only
+# global settings exclude refresh interval will NOT be refreshed (restart is required)
 # will not refresh if zero
 # default if not set: 0s
 remote_config_refresh_interval: 60s
@@ -203,7 +203,7 @@ Usage: `prometheus-alert-webhooker [options]`
 | Name                                        | Description                                                                                    | Labels                                     |
 |---------------------------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------|
 | `prometheus_alert_webhooker_income_tasks`   | Income tasks counter                                                                           | `rule` `alert` `executor`                  |
-| `prometheus_alert_webhooker_executed_tasks` | Executed tasks histogram with duration in seconds. `error` label is empty is no error occurred | `rule` `alert` `executor` `result` `error` |
+| `prometheus_alert_webhooker_executed_tasks` | Executed tasks histogram with duration in seconds. `error` label is empty if no error occurred | `rule` `alert` `executor` `result` `error` |
 
 [(back to top)](#prometheus-alert-webhooker)
 
