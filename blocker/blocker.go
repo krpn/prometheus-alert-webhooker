@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const foreverTTL = 0
+
 // Blocker blocks tasks by fingerprint.
 type Blocker struct {
 	cache    cacher
@@ -13,8 +15,8 @@ type Blocker struct {
 	defValue []byte
 }
 
-// Block blocks task by fingeprint for needed TTL.
-func (b *Blocker) Block(fingerprint string, ttl time.Duration) (blockedSuccessfully bool, err error) {
+// BlockInProgress blocks task by fingeprint while executing.
+func (b *Blocker) BlockInProgress(fingerprint string) (blockedSuccessfully bool, err error) {
 	b.mt.Lock()
 	defer b.mt.Unlock()
 
@@ -27,12 +29,20 @@ func (b *Blocker) Block(fingerprint string, ttl time.Duration) (blockedSuccessfu
 		return false, err
 	}
 
-	err = b.cache.Set([]byte(fingerprint), b.defValue, int(ttl.Seconds()))
+	err = b.cache.Set([]byte(fingerprint), b.defValue, foreverTTL)
 	if err != nil {
 		return false, err
 	}
 
 	return true, nil
+}
+
+// BlockForTTL blocks task by fingeprint for needed TTL.
+func (b *Blocker) BlockForTTL(fingerprint string, ttl time.Duration) error {
+	b.mt.Lock()
+	defer b.mt.Unlock()
+
+	return b.cache.Set([]byte(fingerprint), b.defValue, int(ttl.Seconds()))
 }
 
 // Unblock unblocks task by fingeprint.

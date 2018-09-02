@@ -10,6 +10,7 @@ type execResult string
 const (
 	execResultBlockError            execResult = "block_error"
 	execResultInBlock               execResult = "in_block"
+	execResultCanNotBlock           execResult = "can_not_block"
 	execResultExecError             execResult = "exec_error"
 	execResultExecErrorWithoutBlock execResult = "exec_error_without_block"
 	execResultSuccess               execResult = "success"
@@ -30,7 +31,7 @@ func exec(task executor.Task, blocker blocker, logger *logrus.Logger) (execResul
 		return execResultSuccessWithoutBlock, nil
 	}
 
-	success, err := blocker.Block(task.Fingerprint(), task.BlockTTL())
+	success, err := blocker.BlockInProgress(task.Fingerprint())
 	if err != nil {
 		return execResultBlockError, err
 	}
@@ -43,6 +44,11 @@ func exec(task executor.Task, blocker blocker, logger *logrus.Logger) (execResul
 	if err != nil {
 		blocker.Unblock(task.Fingerprint())
 		return execResultExecError, err
+	}
+
+	err = blocker.BlockForTTL(task.Fingerprint(), task.BlockTTL())
+	if err != nil {
+		return execResultCanNotBlock, err
 	}
 
 	return execResultSuccess, nil

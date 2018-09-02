@@ -34,9 +34,10 @@ func Test_exec(t *testing.T) {
 			task:  executor.NewMockTask(ctrl),
 			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
 				t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
-				t.EXPECT().Fingerprint().Return("testfp1")
-				b.EXPECT().Block("testfp1", 10*time.Minute).Return(true, nil)
+				t.EXPECT().Fingerprint().Return("testfp1").Times(2)
+				b.EXPECT().BlockInProgress("testfp1").Return(true, nil)
 				t.EXPECT().Exec(l).Return(nil)
+				b.EXPECT().BlockForTTL("testfp1", 10*time.Minute).Return(nil)
 			},
 			expectedResult: execResultSuccess,
 			expectedErr:    nil,
@@ -45,9 +46,9 @@ func Test_exec(t *testing.T) {
 			tcase: execResultInBlock,
 			task:  executor.NewMockTask(ctrl),
 			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
-				t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
+				t.EXPECT().BlockTTL().Return(10 * time.Minute)
 				t.EXPECT().Fingerprint().Return("testfp1")
-				b.EXPECT().Block("testfp1", 10*time.Minute).Return(false, nil)
+				b.EXPECT().BlockInProgress("testfp1").Return(false, nil)
 			},
 			expectedResult: execResultInBlock,
 			expectedErr:    nil,
@@ -56,9 +57,9 @@ func Test_exec(t *testing.T) {
 			tcase: execResultBlockError,
 			task:  executor.NewMockTask(ctrl),
 			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
-				t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
+				t.EXPECT().BlockTTL().Return(10 * time.Minute)
 				t.EXPECT().Fingerprint().Return("testfp1")
-				b.EXPECT().Block("testfp1", 10*time.Minute).Return(false, errors.New("block error"))
+				b.EXPECT().BlockInProgress("testfp1").Return(false, errors.New("block error"))
 			},
 			expectedResult: execResultBlockError,
 			expectedErr:    errors.New("block error"),
@@ -67,9 +68,9 @@ func Test_exec(t *testing.T) {
 			tcase: execResultExecError,
 			task:  executor.NewMockTask(ctrl),
 			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
-				t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
+				t.EXPECT().BlockTTL().Return(10 * time.Minute)
 				t.EXPECT().Fingerprint().Return("testfp1").Times(2)
-				b.EXPECT().Block("testfp1", 10*time.Minute).Return(true, nil)
+				b.EXPECT().BlockInProgress("testfp1").Return(true, nil)
 				t.EXPECT().Exec(l).Return(errors.New("exec error"))
 				b.EXPECT().Unblock("testfp1")
 			},
@@ -95,6 +96,19 @@ func Test_exec(t *testing.T) {
 			},
 			expectedResult: execResultExecErrorWithoutBlock,
 			expectedErr:    errors.New("exec error"),
+		},
+		{
+			tcase: execResultCanNotBlock,
+			task:  executor.NewMockTask(ctrl),
+			expectFunc: func(t *executor.MockTask, b *Mockblocker, l *logrus.Logger) {
+				t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
+				t.EXPECT().Fingerprint().Return("testfp1").Times(2)
+				b.EXPECT().BlockInProgress("testfp1").Return(true, nil)
+				t.EXPECT().Exec(l).Return(nil)
+				b.EXPECT().BlockForTTL("testfp1", 10*time.Minute).Return(errors.New("some block error"))
+			},
+			expectedResult: execResultCanNotBlock,
+			expectedErr:    errors.New("some block error"),
 		},
 	}
 
