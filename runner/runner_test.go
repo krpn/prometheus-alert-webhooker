@@ -56,9 +56,9 @@ func TestStart(t *testing.T) {
 				{
 					task: executor.NewMockTask(ctrl),
 					expectFunc: func(t *executor.MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
-						t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
+						t.EXPECT().BlockTTL().Return(10 * time.Minute)
 						t.EXPECT().Fingerprint().Return("testfp2")
-						b.EXPECT().Block("testfp2", 10*time.Minute).Return(false, nil)
+						b.EXPECT().BlockInProgress("testfp2").Return(false, nil)
 						t.EXPECT().EventID().Return("testid2")
 						t.EXPECT().Rule().Return("testrule2").Times(2)
 						t.EXPECT().Alert().Return("testalert2").Times(2)
@@ -71,9 +71,10 @@ func TestStart(t *testing.T) {
 					task: executor.NewMockTask(ctrl),
 					expectFunc: func(t *executor.MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
 						t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
-						t.EXPECT().Fingerprint().Return("testfp3")
-						b.EXPECT().Block("testfp3", 10*time.Minute).Return(true, nil)
+						t.EXPECT().Fingerprint().Return("testfp3").Times(2)
+						b.EXPECT().BlockInProgress("testfp3").Return(true, nil)
 						t.EXPECT().Exec(l).Return(nil)
+						b.EXPECT().BlockForTTL("testfp3", 10*time.Minute).Return(nil)
 						t.EXPECT().EventID().Return("testid3")
 						t.EXPECT().Rule().Return("testrule3").Times(2)
 						t.EXPECT().Alert().Return("testalert3").Times(2)
@@ -85,9 +86,9 @@ func TestStart(t *testing.T) {
 				{
 					task: executor.NewMockTask(ctrl),
 					expectFunc: func(t *executor.MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
-						t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
+						t.EXPECT().BlockTTL().Return(10 * time.Minute)
 						t.EXPECT().Fingerprint().Return("testfp4").Times(2)
-						b.EXPECT().Block("testfp4", 10*time.Minute).Return(true, nil)
+						b.EXPECT().BlockInProgress("testfp4").Return(true, nil)
 						t.EXPECT().Exec(l).Return(errors.New("exec error"))
 						b.EXPECT().Unblock("testfp4")
 						t.EXPECT().EventID().Return("testid4")
