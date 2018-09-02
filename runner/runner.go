@@ -2,13 +2,14 @@ package runner
 
 import (
 	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/krpn/prometheus-alert-webhooker/model"
 	"github.com/sirupsen/logrus"
 	"sync"
 	"time"
 )
 
 // Start starts runners for observe tasks.
-func Start(runners int, tasksCh chan executor.Task, blocker blocker, metric metricser, logger *logrus.Logger, nowFunc func() time.Time) {
+func Start(runners int, tasksCh chan model.Tasks, blocker blocker, metric metricser, logger *logrus.Logger, nowFunc func() time.Time) {
 	var wg sync.WaitGroup
 	wg.Add(runners)
 	for i := 0; i < runners; i++ {
@@ -19,7 +20,7 @@ func Start(runners int, tasksCh chan executor.Task, blocker blocker, metric metr
 
 const context = "runner"
 
-func runner(tasksCh chan executor.Task, blocker blocker, metric metricser, logger *logrus.Logger, nowFunc func() time.Time, wg *sync.WaitGroup) {
+func runner(tasksCh chan model.Tasks, blocker blocker, metric metricser, logger *logrus.Logger, nowFunc func() time.Time, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var (
 		result    execResult
@@ -28,22 +29,31 @@ func runner(tasksCh chan executor.Task, blocker blocker, metric metricser, logge
 		ctxLogger = logger.WithField("context", context)
 	)
 
-	for task := range tasksCh {
-		taskLogger := ctxLogger.WithFields(executor.TaskDetails(task))
-		taskLogger.Info("runner starts executing")
+	for tasks := range tasksCh {
+		tasksLogger := ctxLogger.WithField("tasks", tasks.Details())
+		tasksLogger.Info("runner starts executing group")
 
-		start = nowFunc()
-		result, err = exec(task, blocker, logger)
-		duration := nowFunc().Sub(start)
+		tasksQty := len(tasks)
+		for i, task := range tasks {
+			taskNum := i + 1
+			taskLogger := tasksLogger.WithFields(executor.TaskDetails(task))
+			taskLogger.Infof("runner starts executing task #%v/%v", taskNum, tasksQty)
 
-		taskLogger = taskLogger.WithFields(logrus.Fields{"result": result.String(), "duration": duration.String()})
-		if err == nil {
-			taskLogger.Info("runner finished executing")
-		} else {
-			taskLogger.Errorf("runner got executing error: %v", err)
+			start = nowFunc()
+			result, err = exec(task, blocker, logger)
+			duration := nowFunc().Sub(start)
+			metric.ExecutedTaskObserve(task.Rule(), task.Alert(), task.ExecutorName(), result.String(), err, duration)
+
+			taskLogger = taskLogger.WithFields(logrus.Fields{"result": result.String(), "duration": duration.String()})
+			if err == nil {
+				taskLogger.Infof("runner finished executing task #%v/%v", taskNum, tasksQty)
+			} else {
+				taskLogger.Errorf("runner got executing task #%v/%v error, stopping group: %v", taskNum, tasksQty, err)
+				break
+			}
 		}
 
-		metric.ExecutedTaskObserve(task.Rule(), task.Alert(), task.ExecutorName(), result.String(), err, duration)
+		tasksLogger.Info("runner finished executing group")
 	}
 }
 

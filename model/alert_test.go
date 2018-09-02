@@ -196,7 +196,7 @@ func TestAlert_match(t *testing.T) {
 	}
 }
 
-func TestAlerts_ToTasks(t *testing.T) {
+func TestAlerts_ToTasksGroups(t *testing.T) {
 	t.Parallel()
 
 	ctrl := gomock.NewController(t)
@@ -273,7 +273,7 @@ func TestAlerts_ToTasks(t *testing.T) {
 
 	for _, testUnit := range testTable {
 		testUnit.expectFunc(executorMock)
-		assert.Equal(t, testUnit.expectedTasksQty, len(testUnit.alerts.ToTasks(testUnit.rules, testUnit.eventID)), testUnit.tcase)
+		assert.Equal(t, testUnit.expectedTasksQty, len(testUnit.alerts.ToTasksGroups(testUnit.rules, testUnit.eventID)), testUnit.tcase)
 	}
 }
 

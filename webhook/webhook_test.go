@@ -33,7 +33,7 @@ func TestWebhook(t *testing.T) {
 		rules         model.Rules
 		body          []byte
 		expectFunc    func(m *Mockmetricser, e *executor.MockTaskExecutor, t *executor.MockTask)
-		expectedTasks []executor.Task
+		expectedTasks model.TasksGroups
 		expectedLogs  []string
 	}
 
@@ -88,14 +88,12 @@ func TestWebhook(t *testing.T) {
 				}).Times(2)
 				m.EXPECT().IncomeTaskInc("testrule1", "testalert1", "shell")
 			},
-			expectedTasks: []executor.Task{
-				task,
-			},
+			expectedTasks: model.TasksGroups{{task}},
 			expectedLogs: []string{
-				`{"context":"webhook","event_id":"dc12","level":"info","msg":"payload is received, tasks are prepared","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance1"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks":[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]}`,
-				`{"alert":"testalert1","context":"webhook","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","level":"info","msg":"ready to send task to runner","rule":"testrule1"}`,
-				`{"alert":"testalert1","context":"webhook","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","level":"info","msg":"sent task to runner","rule":"testrule1"}`,
-				`{"context":"webhook","event_id":"dc12","level":"info","msg":"all tasks sent to runners","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance1"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks":[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]}`,
+				`{"context":"webhook","event_id":"dc12","level":"info","msg":"payload is received, tasks are prepared","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance1"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks_groups":[[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]]}`,
+				`{"context":"webhook","level":"info","msg":"ready to send tasks to runner","tasks":[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]}`,
+				`{"context":"webhook","level":"info","msg":"sent tasks to runner","tasks":[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]}`,
+				`{"context":"webhook","event_id":"dc12","level":"info","msg":"all tasks sent to runners","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance1"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks_groups":[[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]]}`,
 			},
 		},
 		{
@@ -142,9 +140,9 @@ func TestWebhook(t *testing.T) {
     "status": "firing"
 }`),
 			expectFunc:    func(m *Mockmetricser, e *executor.MockTaskExecutor, t *executor.MockTask) {},
-			expectedTasks: []executor.Task{},
+			expectedTasks: model.TasksGroups{},
 			expectedLogs: []string{
-				`{"context":"webhook","event_id":"dc12","level":"info","msg":"payload is received, no tasks for it","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance2"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks":[]}`,
+				`{"context":"webhook","event_id":"dc12","level":"info","msg":"payload is received, no tasks for it","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance2"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks_groups":[]}`,
 			},
 		},
 	}
@@ -160,7 +158,7 @@ func TestWebhook(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		tasksCh := make(chan executor.Task, len(testUnit.expectedTasks))
+		tasksCh := make(chan model.Tasks, len(testUnit.expectedTasks))
 		Webhook(req, testUnit.rules, tasksCh, metric, logger, nowFunc)
 
 		for _, expectedTask := range testUnit.expectedTasks {
@@ -204,7 +202,7 @@ func TestWebhook_RulesChanged(t *testing.T) {
 		tcase         string
 		rules         model.Rules
 		expectFunc    func(m *Mockmetricser, e *executor.MockTaskExecutor, t *executor.MockTask)
-		expectedTasks []executor.Task
+		expectedTasks model.TasksGroups
 		expectedLogs  []string
 	}
 
@@ -245,14 +243,12 @@ func TestWebhook_RulesChanged(t *testing.T) {
 				}).Times(2)
 				m.EXPECT().IncomeTaskInc("testrule1", "testalert1", "shell")
 			},
-			expectedTasks: []executor.Task{
-				task,
-			},
+			expectedTasks: model.TasksGroups{{task}},
 			expectedLogs: []string{
-				`{"context":"webhook","event_id":"dc12","level":"info","msg":"payload is received, tasks are prepared","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance1"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks":[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]}`,
-				`{"alert":"testalert1","context":"webhook","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","level":"info","msg":"ready to send task to runner","rule":"testrule1"}`,
-				`{"alert":"testalert1","context":"webhook","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","level":"info","msg":"sent task to runner","rule":"testrule1"}`,
-				`{"context":"webhook","event_id":"dc12","level":"info","msg":"all tasks sent to runners","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance1"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks":[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]}`,
+				`{"context":"webhook","event_id":"dc12","level":"info","msg":"payload is received, tasks are prepared","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance1"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks_groups":[[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]]}`,
+				`{"context":"webhook","level":"info","msg":"ready to send tasks to runner","tasks":[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]}`,
+				`{"context":"webhook","level":"info","msg":"sent tasks to runner","tasks":[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]}`,
+				`{"context":"webhook","event_id":"dc12","level":"info","msg":"all tasks sent to runners","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance1"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks_groups":[[{"alert":"testalert1","details":{"command":"curl http://jenkins.../job?val=testinstance1"},"event_id":"dc12","executor":"shell","rule":"testrule1"}]]}`,
 			},
 		},
 		{
@@ -279,9 +275,9 @@ func TestWebhook_RulesChanged(t *testing.T) {
 				},
 			},
 			expectFunc:    func(m *Mockmetricser, e *executor.MockTaskExecutor, t *executor.MockTask) {},
-			expectedTasks: []executor.Task{},
+			expectedTasks: model.TasksGroups{},
 			expectedLogs: []string{
-				`{"context":"webhook","event_id":"dc12","level":"info","msg":"payload is received, no tasks for it","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance1"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks":[]}`,
+				`{"context":"webhook","event_id":"dc12","level":"info","msg":"payload is received, no tasks for it","payload":{"receiver":"","status":"firing","alerts":[{"status":"","labels":{"alertname":"testalert1","instance":"testinstance1"},"annotations":{"url":"http://jenkins.../job?val=${LABEL_INSTANCE}"},"startsAt":"0001-01-01T00:00:00Z","endsAt":"0001-01-01T00:00:00Z","generatorURL":""}],"groupLabels":null,"commonLabels":null,"commonAnnotations":null,"externalURL":""},"tasks_groups":[]}`,
 			},
 		},
 	}
@@ -301,7 +297,7 @@ func TestWebhook_RulesChanged(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		tasksCh := make(chan executor.Task, len(testUnit.expectedTasks))
+		tasksCh := make(chan model.Tasks, len(testUnit.expectedTasks))
 		Webhook(req, globalRules, tasksCh, metric, logger, nowFunc)
 
 		for _, expectedTask := range testUnit.expectedTasks {

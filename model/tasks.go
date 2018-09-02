@@ -27,3 +27,17 @@ func NewTasks(rule Rule, alert alert, eventID string) Tasks {
 
 	return tasks
 }
+
+// TasksGroups is a slice of Tasks.
+type TasksGroups []Tasks
+
+// Details gets details for all tasks groups.
+func (tasksGroups TasksGroups) Details() [][]map[string]interface{} {
+	r := make([][]map[string]interface{}, len(tasksGroups))
+
+	for i, tasks := range tasksGroups {
+		r[i] = tasks.Details()
+	}
+
+	return r
+}
