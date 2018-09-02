@@ -653,6 +653,44 @@ func TestRule_mergeCommonParameters(t *testing.T) {
 			commonParameters: nil,
 			expected:         func() *Rule { return getTestRuleUncompiled(1) },
 		},
+		{
+			tcase: "parameters only from common parameters",
+			rule: func() *Rule {
+				rule := getTestRuleUncompiled(1)
+				rule.Actions = Actions{
+					{
+						Executor:         "telegram",
+						CommonParameters: "telegram_bot",
+						Parameters:       nil,
+						Block:            10 * time.Second,
+					},
+				}
+				return rule
+			},
+			commonParameters: map[string]map[string]interface{}{
+				"telegram_bot": {
+					"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+					"chat_id":   12345678,
+					"message":   "test",
+				},
+			},
+			expected: func() *Rule {
+				rule := getTestRuleUncompiled(1)
+				rule.Actions = Actions{
+					{
+						Executor:         "telegram",
+						CommonParameters: "telegram_bot",
+						Parameters: map[string]interface{}{
+							"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+							"chat_id":   12345678,
+							"message":   "test",
+						},
+						Block: 10 * time.Second,
+					},
+				}
+				return rule
+			},
+		},
 	}
 
 	for _, testUnit := range testTable {

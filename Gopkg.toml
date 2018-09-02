@@ -38,5 +38,9 @@
   name = "github.com/stretchr/testify"
   version = "1.2.2"
 
+[[constraint]]
+  branch = "master"
+  name = "github.com/go-telegram-bot-api/telegram-bot-api"
+
 [prune]
   unused-packages = true

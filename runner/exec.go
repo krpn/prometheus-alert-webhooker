@@ -17,6 +17,11 @@ const (
 	execResultSuccessWithoutBlock   execResult = "success_without_block"
 )
 
+var successfulResults = []string{
+	string(execResultSuccess),
+	string(execResultSuccessWithoutBlock),
+}
+
 func (r execResult) String() string {
 	return string(r)
 }

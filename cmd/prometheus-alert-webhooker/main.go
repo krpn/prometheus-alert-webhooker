@@ -9,6 +9,7 @@ import (
 	"github.com/krpn/prometheus-alert-webhooker/executor"
 	"github.com/krpn/prometheus-alert-webhooker/executor/jenkins"
 	"github.com/krpn/prometheus-alert-webhooker/executor/shell"
+	"github.com/krpn/prometheus-alert-webhooker/executor/telegram"
 	mtrc "github.com/krpn/prometheus-alert-webhooker/metric"
 	"github.com/krpn/prometheus-alert-webhooker/model"
 	"github.com/krpn/prometheus-alert-webhooker/runner"
@@ -31,8 +32,9 @@ var (
 	verbose        = flag.Bool("v", false, "Enable verbose logging")
 
 	taskExecutors = map[string]executor.TaskExecutor{
-		"shell":   shell.NewExecutor(exec.Command),
-		"jenkins": jenkins.NewExecutor(),
+		"shell":    shell.NewExecutor(exec.Command),
+		"jenkins":  jenkins.NewExecutor(),
+		"telegram": telegram.NewExecutor(&http.Client{}),
 	}
 )
 

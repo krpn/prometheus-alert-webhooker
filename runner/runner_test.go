@@ -2,6 +2,7 @@ package runner
 
 import (
 	"errors"
+	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/krpn/prometheus-alert-webhooker/executor"
 	"github.com/krpn/prometheus-alert-webhooker/model"
@@ -39,7 +40,7 @@ func TestStart(t *testing.T) {
 
 	testTable := []testTableData{
 		{
-			tcase: "four tasks",
+			tcase: "a lot of tasks",
 			tasks: []expectTask{
 				{
 					tasks: []*executor.MockTask{executor.NewMockTask(ctrl)},
@@ -118,24 +119,70 @@ func TestStart(t *testing.T) {
 						}
 					},
 				},
+				{
+					tasks: []*executor.MockTask{executor.NewMockTask(ctrl), executor.NewMockTask(ctrl), executor.NewMockTask(ctrl)},
+					expectFunc: func(ts []*executor.MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
+						shift := 6
+						for i, t := range ts {
+							if i == 2 {
+								t.EXPECT().EventID().Return(fmt.Sprintf("testid%v", i+shift)).Times(1)
+								t.EXPECT().Rule().Return(fmt.Sprintf("testrule%v", i+shift)).Times(1)
+								t.EXPECT().Alert().Return(fmt.Sprintf("testalert%v", i+shift)).Times(1)
+								t.EXPECT().ExecutorName().Return("shell").Times(1)
+								t.EXPECT().ExecutorDetails().Return(fmt.Sprintf("testtask%v", i+shift)).Times(1)
+								continue
+							}
+
+							var result execResult
+							if i == 0 {
+								t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
+								t.EXPECT().Fingerprint().Return(fmt.Sprintf("testfp%v", i+shift)).Times(2)
+								b.EXPECT().BlockInProgress(fmt.Sprintf("testfp%v", i+shift)).Return(true, nil)
+								t.EXPECT().Exec(l).Return(nil)
+								result = execResultSuccess
+								b.EXPECT().BlockForTTL(fmt.Sprintf("testfp%v", i+shift), 10*time.Minute).Return(nil)
+							}
+							if i == 1 {
+								t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(1)
+								t.EXPECT().Fingerprint().Return(fmt.Sprintf("testfp%v", i+shift))
+								b.EXPECT().BlockInProgress(fmt.Sprintf("testfp%v", i+shift)).Return(false, nil)
+								result = execResultInBlock
+							}
+							t.EXPECT().EventID().Return(fmt.Sprintf("testid%v", i+shift)).Times(2)
+							t.EXPECT().Rule().Return(fmt.Sprintf("testrule%v", i+shift)).Times(3)
+							t.EXPECT().Alert().Return(fmt.Sprintf("testalert%v", i+shift)).Times(3)
+							t.EXPECT().ExecutorName().Return("shell").Times(3)
+							t.EXPECT().ExecutorDetails().Return(fmt.Sprintf("testtask%v", i+shift)).Times(2)
+							m.EXPECT().ExecutedTaskObserve(fmt.Sprintf("testrule%v", i+shift), fmt.Sprintf("testalert%v", i+shift), "shell", result.String(), nil, 0*time.Second)
+						}
+					},
+				},
 			},
 			expectedLogs: []string{
 				`{"context":"runner","level":"info","msg":"runner starts executing group","tasks":[{"alert":"testalert1","details":{"testtask1":"opts"},"event_id":"testid1","executor":"shell","rule":"testrule1"}]}`,
 				`{"context":"runner","level":"info","msg":"runner starts executing group","tasks":[{"alert":"testalert2","details":"testtask2","event_id":"testid2","executor":"shell","rule":"testrule2"}]}`,
 				`{"context":"runner","level":"info","msg":"runner starts executing group","tasks":[{"alert":"testalert3","details":"testtask3","event_id":"testid3","executor":"shell","rule":"testrule3"}]}`,
 				`{"context":"runner","level":"info","msg":"runner starts executing group","tasks":[{"alert":"testalert4","details":"testtask4","event_id":"testid4","executor":"shell","rule":"testrule4"},{"alert":"testalert5","details":"testtask5","event_id":"testid5","executor":"shell","rule":"testrule5"}]}`,
+				`{"context":"runner","level":"info","msg":"runner starts executing group","tasks":[{"alert":"testalert6","details":"testtask6","event_id":"testid6","executor":"shell","rule":"testrule6"},{"alert":"testalert7","details":"testtask7","event_id":"testid7","executor":"shell","rule":"testrule7"},{"alert":"testalert8","details":"testtask8","event_id":"testid8","executor":"shell","rule":"testrule8"}]}`,
 				`{"alert":"testalert1","context":"runner","details":{"testtask1":"opts"},"event_id":"testid1","executor":"shell","level":"info","msg":"runner starts executing task #1/1","rule":"testrule1","tasks":[{"alert":"testalert1","details":{"testtask1":"opts"},"event_id":"testid1","executor":"shell","rule":"testrule1"}]}`,
 				`{"alert":"testalert1","context":"runner","details":{"testtask1":"opts"},"duration":"0s","event_id":"testid1","executor":"shell","level":"info","msg":"runner finished executing task #1/1","result":"success_without_block","rule":"testrule1","tasks":[{"alert":"testalert1","details":{"testtask1":"opts"},"event_id":"testid1","executor":"shell","rule":"testrule1"}]}`,
 				`{"alert":"testalert2","context":"runner","details":"testtask2","event_id":"testid2","executor":"shell","level":"info","msg":"runner starts executing task #1/1","rule":"testrule2","tasks":[{"alert":"testalert2","details":"testtask2","event_id":"testid2","executor":"shell","rule":"testrule2"}]}`,
 				`{"alert":"testalert2","context":"runner","details":"testtask2","duration":"0s","event_id":"testid2","executor":"shell","level":"info","msg":"runner finished executing task #1/1","result":"in_block","rule":"testrule2","tasks":[{"alert":"testalert2","details":"testtask2","event_id":"testid2","executor":"shell","rule":"testrule2"}]}`,
+				`{"alert":"testalert2","context":"runner","details":"testtask2","duration":"0s","event_id":"testid2","executor":"shell","level":"info","msg":"runner got executing task #1/1 unsuccessful result, stopping group: in_block","result":"in_block","rule":"testrule2","tasks":[{"alert":"testalert2","details":"testtask2","event_id":"testid2","executor":"shell","rule":"testrule2"}]}`,
 				`{"alert":"testalert3","context":"runner","details":"testtask3","event_id":"testid3","executor":"shell","level":"info","msg":"runner starts executing task #1/1","rule":"testrule3","tasks":[{"alert":"testalert3","details":"testtask3","event_id":"testid3","executor":"shell","rule":"testrule3"}]}`,
 				`{"alert":"testalert3","context":"runner","details":"testtask3","duration":"0s","event_id":"testid3","executor":"shell","level":"info","msg":"runner finished executing task #1/1","result":"success","rule":"testrule3","tasks":[{"alert":"testalert3","details":"testtask3","event_id":"testid3","executor":"shell","rule":"testrule3"}]}`,
 				`{"alert":"testalert4","context":"runner","details":"testtask4","event_id":"testid4","executor":"shell","level":"info","msg":"runner starts executing task #1/2","rule":"testrule4","tasks":[{"alert":"testalert4","details":"testtask4","event_id":"testid4","executor":"shell","rule":"testrule4"},{"alert":"testalert5","details":"testtask5","event_id":"testid5","executor":"shell","rule":"testrule5"}]}`,
 				`{"alert":"testalert4","context":"runner","details":"testtask4","duration":"0s","event_id":"testid4","executor":"shell","level":"error","msg":"runner got executing task #1/2 error, stopping group: exec error","result":"exec_error","rule":"testrule4","tasks":[{"alert":"testalert4","details":"testtask4","event_id":"testid4","executor":"shell","rule":"testrule4"},{"alert":"testalert5","details":"testtask5","event_id":"testid5","executor":"shell","rule":"testrule5"}]}`,
+				`{"alert":"testalert6","context":"runner","details":"testtask6","event_id":"testid6","executor":"shell","level":"info","msg":"runner starts executing task #1/3","rule":"testrule6","tasks":[{"alert":"testalert6","details":"testtask6","event_id":"testid6","executor":"shell","rule":"testrule6"},{"alert":"testalert7","details":"testtask7","event_id":"testid7","executor":"shell","rule":"testrule7"},{"alert":"testalert8","details":"testtask8","event_id":"testid8","executor":"shell","rule":"testrule8"}]}`,
+				`{"alert":"testalert6","context":"runner","details":"testtask6","duration":"0s","event_id":"testid6","executor":"shell","level":"info","msg":"runner finished executing task #1/3","result":"success","rule":"testrule6","tasks":[{"alert":"testalert6","details":"testtask6","event_id":"testid6","executor":"shell","rule":"testrule6"},{"alert":"testalert7","details":"testtask7","event_id":"testid7","executor":"shell","rule":"testrule7"},{"alert":"testalert8","details":"testtask8","event_id":"testid8","executor":"shell","rule":"testrule8"}]}`,
+				`{"alert":"testalert7","context":"runner","details":"testtask7","event_id":"testid7","executor":"shell","level":"info","msg":"runner starts executing task #2/3","rule":"testrule7","tasks":[{"alert":"testalert6","details":"testtask6","event_id":"testid6","executor":"shell","rule":"testrule6"},{"alert":"testalert7","details":"testtask7","event_id":"testid7","executor":"shell","rule":"testrule7"},{"alert":"testalert8","details":"testtask8","event_id":"testid8","executor":"shell","rule":"testrule8"}]}`,
+				`{"alert":"testalert7","context":"runner","details":"testtask7","duration":"0s","event_id":"testid7","executor":"shell","level":"info","msg":"runner finished executing task #2/3","result":"in_block","rule":"testrule7","tasks":[{"alert":"testalert6","details":"testtask6","event_id":"testid6","executor":"shell","rule":"testrule6"},{"alert":"testalert7","details":"testtask7","event_id":"testid7","executor":"shell","rule":"testrule7"},{"alert":"testalert8","details":"testtask8","event_id":"testid8","executor":"shell","rule":"testrule8"}]}`,
+				`{"alert":"testalert7","context":"runner","details":"testtask7","duration":"0s","event_id":"testid7","executor":"shell","level":"info","msg":"runner got executing task #2/3 unsuccessful result, stopping group: in_block","result":"in_block","rule":"testrule7","tasks":[{"alert":"testalert6","details":"testtask6","event_id":"testid6","executor":"shell","rule":"testrule6"},{"alert":"testalert7","details":"testtask7","event_id":"testid7","executor":"shell","rule":"testrule7"},{"alert":"testalert8","details":"testtask8","event_id":"testid8","executor":"shell","rule":"testrule8"}]}`,
 				`{"context":"runner","level":"info","msg":"runner finished executing group","tasks":[{"alert":"testalert1","details":{"testtask1":"opts"},"event_id":"testid1","executor":"shell","rule":"testrule1"}]}`,
 				`{"context":"runner","level":"info","msg":"runner finished executing group","tasks":[{"alert":"testalert2","details":"testtask2","event_id":"testid2","executor":"shell","rule":"testrule2"}]}`,
 				`{"context":"runner","level":"info","msg":"runner finished executing group","tasks":[{"alert":"testalert3","details":"testtask3","event_id":"testid3","executor":"shell","rule":"testrule3"}]}`,
 				`{"context":"runner","level":"info","msg":"runner finished executing group","tasks":[{"alert":"testalert4","details":"testtask4","event_id":"testid4","executor":"shell","rule":"testrule4"},{"alert":"testalert5","details":"testtask5","event_id":"testid5","executor":"shell","rule":"testrule5"}]}`,
+				`{"context":"runner","level":"info","msg":"runner finished executing group","tasks":[{"alert":"testalert6","details":"testtask6","event_id":"testid6","executor":"shell","rule":"testrule6"},{"alert":"testalert7","details":"testtask7","event_id":"testid7","executor":"shell","rule":"testrule7"},{"alert":"testalert8","details":"testtask8","event_id":"testid8","executor":"shell","rule":"testrule8"}]}`,
 			},
 		},
 	}

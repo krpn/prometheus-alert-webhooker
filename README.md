@@ -11,6 +11,7 @@ prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://pr
 * [Executors](#executors)
     * [Executor `jenkins`](#executor-jenkins)
     * [Executor `shell`](#executor-shell)
+    * [Executor `telegram`](#executor-telegram)
 * [Command-Line Options](#command-line-options)
 * [Exposed Prometheus Metrics](#exposed-prometheus-metrics)
 * [Contribute](#contribute)
@@ -21,6 +22,7 @@ prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://pr
 * Currently supports actions (see [executors](#executors)):
     * run Jenkins job (optionally with parameters)
     * run shell command
+    * send Telegram message
 * Alert labels/annotations can be used in action placeholders
 * Rules are set in config and can be flexible ([example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml))
 * Supported config types JSON, TOML, YAML, HCL, and Java properties ([Viper](https://github.com/spf13/viper) is used)
@@ -185,6 +187,16 @@ Executors and it parameters described below.
 | Parameter | Type       | Description         | Example                               |
 |-----------|:----------:|---------------------|---------------------------------------|
 | command   | `string`   | Command for execute | `command: ./clean.sh ${LABEL_FOLDER}` |
+
+## Executor `telegram`
+
+`telegram` is used for handy notifications about webhooker events.
+
+| Parameter | Type     | Description                                        | Example                                                |
+|-----------|:--------:|----------------------------------------------------|--------------------------------------------------------|
+| bot_token | `string` | Bot token from [BotFather](https://t.me/BotFather) | `bot_token: 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` |
+| chat_id   | `int`    | Chat ID for send notifications to                  | `chat_id: -1001103941234`                              |
+| message   | `string` | Message for send                                    | `message: Fixed ${LABEL_ALERTNAME}`                    |
 
 [(back to top)](#prometheus-alert-webhooker)
 
