@@ -21,7 +21,10 @@ common_parameters:
     login: webhooker
     password: qwerty123
     state_refresh_delay: 5s
-
+  telegram_bot:
+    bot_token: 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
+    chat_id: -1001103941234
+    message: Fixed ${LABEL_ALERTNAME}
 
 # list of rules to check and act
 rules:
@@ -37,6 +40,8 @@ rules:
     parameters:
       job: ${ANNOTATION_JENKINS_JOB} # job name from annotation jenkins_job
     block: 10m
+  - executor: telegram
+    common_parameters: telegram_bot
 
 - name: LowDiskSpaceLogsFix
   conditions:
@@ -48,3 +53,5 @@ rules:
     parameters:
       command: ./clean.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}
     block: 30m
+  - executor: telegram
+    common_parameters: telegram_bot

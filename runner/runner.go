@@ -3,6 +3,7 @@ package runner
 import (
 	"github.com/krpn/prometheus-alert-webhooker/executor"
 	"github.com/krpn/prometheus-alert-webhooker/model"
+	"github.com/krpn/prometheus-alert-webhooker/utils"
 	"github.com/sirupsen/logrus"
 	"sync"
 	"time"
@@ -49,6 +50,11 @@ func runner(tasksCh chan model.Tasks, blocker blocker, metric metricser, logger 
 				taskLogger.Infof("runner finished executing task #%v/%v", taskNum, tasksQty)
 			} else {
 				taskLogger.Errorf("runner got executing task #%v/%v error, stopping group: %v", taskNum, tasksQty, err)
+				break
+			}
+
+			if !utils.StringSliceContains(successfulResults, string(result)) {
+				taskLogger.Infof("runner got executing task #%v/%v unsuccessful result, stopping group: %v", taskNum, tasksQty, result)
 				break
 			}
 		}

@@ -187,9 +187,14 @@ func (rule *Rule) mergeCommonParameters(commonParams map[string]map[string]inter
 		return
 	}
 
-	for _, action := range rule.Actions {
+	for i, action := range rule.Actions {
 		if action.CommonParameters == "" {
 			continue
+		}
+
+		if action.Parameters == nil {
+			action.Parameters = make(map[string]interface{})
+			rule.Actions[i] = action
 		}
 
 		common, ok := commonParams[action.CommonParameters]
