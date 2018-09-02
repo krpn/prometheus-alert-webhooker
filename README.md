@@ -120,7 +120,9 @@ rules:
       <annotation_n>: <annotation_value_n>
   
   # list of actions for this rule
-  # (!) if few actions are match for alert all matched actions will be exec 
+  # (!) if few actions are match for alert all matched actions will be exec
+  # (!) actions will be execute sequentially
+  # if action fails the other actions will be cancelled
   actions:
   - executor: <executor> # executor from available executor list 
     
@@ -151,6 +153,7 @@ rules:
     # used for occasional exec
     # (!) blocks only unique set of parameters for this action
     # will not block if zero
+    # (!) all blocks released when webhooker restarts
     # default if not set: 0s
     block: 10m
 ```

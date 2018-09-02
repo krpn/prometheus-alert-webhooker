@@ -2,7 +2,6 @@ package webhook
 
 import (
 	"encoding/json"
-	"github.com/krpn/prometheus-alert-webhooker/executor"
 	"github.com/krpn/prometheus-alert-webhooker/model"
 	"github.com/krpn/prometheus-alert-webhooker/utils"
 	"github.com/sirupsen/logrus"
@@ -13,7 +12,7 @@ import (
 const context = "webhook"
 
 // Webhook is a handler for Alertmanager payload.
-func Webhook(req *http.Request, rules model.Rules, tasksCh chan executor.Task, metric metricser, logger *logrus.Logger, nowFunc func() time.Time) {
+func Webhook(req *http.Request, rules model.Rules, tasksCh chan model.Tasks, metric metricser, logger *logrus.Logger, nowFunc func() time.Time) {
 	decoder := json.NewDecoder(req.Body)
 
 	payload := &model.Payload{}
@@ -24,31 +23,34 @@ func Webhook(req *http.Request, rules model.Rules, tasksCh chan executor.Task, m
 	eventID := getEventID(nowFunc)
 
 	alerts := payload.ToAlerts()
-	tasks := alerts.ToTasks(rules, eventID)
+	tasksGroups := alerts.ToTasksGroups(rules, eventID)
 
 	ctxLogger := logger.WithField("context", context)
 	payloadLogger := ctxLogger.WithFields(
 		logrus.Fields{
-			"event_id": eventID,
-			"payload":  payload,
-			"tasks":    tasks.Details(),
+			"event_id":     eventID,
+			"payload":      payload,
+			"tasks_groups": tasksGroups.Details(),
 		},
 	)
-	if len(tasks) == 0 {
+	if len(tasksGroups) == 0 {
 		payloadLogger.Info("payload is received, no tasks for it")
 		return
 	}
 
 	payloadLogger.Info("payload is received, tasks are prepared")
 
-	for _, task := range tasks {
-		taskLogger := ctxLogger.WithFields(executor.TaskDetails(task))
-		taskLogger.Info("ready to send task to runner")
+	for _, tasks := range tasksGroups {
+		tasksLogger := ctxLogger.WithField("tasks", tasks.Details())
+		tasksLogger.Info("ready to send tasks to runner")
 
-		tasksCh <- task
+		tasksCh <- tasks
 
-		taskLogger.Info("sent task to runner")
-		metric.IncomeTaskInc(task.Rule(), task.Alert(), task.ExecutorName())
+		tasksLogger.Info("sent tasks to runner")
+
+		for _, task := range tasks {
+			metric.IncomeTaskInc(task.Rule(), task.Alert(), task.ExecutorName())
+		}
 	}
 
 	payloadLogger.Info("all tasks sent to runners")

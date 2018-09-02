@@ -10,6 +10,7 @@ import (
 	"github.com/krpn/prometheus-alert-webhooker/executor/jenkins"
 	"github.com/krpn/prometheus-alert-webhooker/executor/shell"
 	mtrc "github.com/krpn/prometheus-alert-webhooker/metric"
+	"github.com/krpn/prometheus-alert-webhooker/model"
 	"github.com/krpn/prometheus-alert-webhooker/runner"
 	"github.com/krpn/prometheus-alert-webhooker/webhook"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -83,7 +84,7 @@ func main() {
 	ctxLogger.Info("config prepared")
 
 	var (
-		tasksCh = make(chan executor.Task, config.PoolSize)
+		tasksCh = make(chan model.Tasks, config.PoolSize)
 		blocker = blc.New(freecache.NewCache(config.BlockCacheSize))
 		metric  = mtrc.New()
 	)

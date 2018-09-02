@@ -133,3 +133,71 @@ func TestTasks_Details(t *testing.T) {
 		assert.Equal(t, testUnit.expected, tasks.Details())
 	}
 }
+
+func TestTasksGroups_Details(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	type testTableData struct {
+		tasksGroups [][]*executor.MockTask
+		expectFunc  func(t [][]*executor.MockTask)
+		expected    [][]map[string]interface{}
+	}
+
+	testTable := []testTableData{
+		{
+			tasksGroups: [][]*executor.MockTask{{executor.NewMockTask(ctrl), executor.NewMockTask(ctrl)}},
+			expectFunc: func(ta [][]*executor.MockTask) {
+				for _, ta := range ta {
+					for i, t := range ta {
+						j := i + 1
+						t.EXPECT().EventID().Return(fmt.Sprintf("testeventid%v", j))
+						t.EXPECT().Rule().Return(fmt.Sprintf("testrule%v", j))
+						t.EXPECT().Alert().Return(fmt.Sprintf("testaler%v", j))
+						t.EXPECT().ExecutorName().Return(fmt.Sprintf("testexecutor%v", j))
+						t.EXPECT().ExecutorDetails().Return(map[string]string{
+							"cmd": "curl some url",
+						})
+					}
+				}
+			},
+			expected: [][]map[string]interface{}{
+				{
+					{
+						"event_id": "testeventid1",
+						"rule":     "testrule1",
+						"alert":    "testaler1",
+						"executor": "testexecutor1",
+						"details": map[string]string{
+							"cmd": "curl some url",
+						},
+					},
+					{
+						"event_id": "testeventid2",
+						"rule":     "testrule2",
+						"alert":    "testaler2",
+						"executor": "testexecutor2",
+						"details": map[string]string{
+							"cmd": "curl some url",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, testUnit := range testTable {
+		testUnit.expectFunc(testUnit.tasksGroups)
+		tasksGroups := make(TasksGroups, len(testUnit.tasksGroups))
+		for i, tasksGroup := range testUnit.tasksGroups {
+			tasks := make(Tasks, len(tasksGroup))
+			for j, task := range tasksGroup {
+				tasks[j] = task
+			}
+			tasksGroups[i] = tasks
+		}
+		assert.Equal(t, testUnit.expected, tasksGroups.Details())
+	}
+}

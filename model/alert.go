@@ -51,15 +51,15 @@ func mapMatchConditions(m map[string]string, conditions map[string]string, condi
 	return true
 }
 
-func (a alert) toTasks(rules Rules, eventID string) (tasks Tasks) {
-	tasks = make(Tasks, 0)
+func (a alert) toTasksGroups(rules Rules, eventID string) (tasksGroups TasksGroups) {
+	tasksGroups = make(TasksGroups, 0)
 
 	for _, rule := range rules {
 		if !a.match(rule.Conditions) {
 			continue
 		}
 
-		tasks = append(tasks, NewTasks(rule, a, eventID)...)
+		tasksGroups = append(tasksGroups, NewTasks(rule, a, eventID))
 	}
 
 	return
@@ -73,11 +73,11 @@ func (a alert) Name() string {
 type Alerts []alert
 
 // ToTasks converts alerts to tasks.
-func (alerts Alerts) ToTasks(rules Rules, eventID string) (tasks Tasks) {
-	tasks = make(Tasks, 0)
+func (alerts Alerts) ToTasksGroups(rules Rules, eventID string) (tasksGroups TasksGroups) {
+	tasksGroups = make(TasksGroups, 0)
 
 	for _, alert := range alerts {
-		tasks = append(tasks, alert.toTasks(rules, eventID)...)
+		tasksGroups = append(tasksGroups, alert.toTasksGroups(rules, eventID)...)
 	}
 
 	return
