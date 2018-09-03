@@ -57,11 +57,11 @@ func New(
 	}
 
 	if !utils.StringSliceContains(supportedProviders, provider) {
-		return nil, fmt.Errorf("unsupported Config provider %v", provider)
+		return nil, fmt.Errorf("unsupported config provider %v", provider)
 	}
 
 	if !utils.StringSliceContains(supportedExts, extension) {
-		return nil, fmt.Errorf("unsupported Config type %v", extension)
+		return nil, fmt.Errorf("unsupported config type %v", extension)
 	}
 
 	configer.SetConfigType(extension)
@@ -124,7 +124,7 @@ func refreshDaemon(config *Config, provider, path string, configer configer, log
 			"configProvider": provider,
 			"configPath":     path,
 		},
-		"Config": *config,
+		"config": *config,
 	})
 
 	var (
@@ -136,19 +136,19 @@ func refreshDaemon(config *Config, provider, path string, configer configer, log
 		time.Sleep(config.RemoteConfigRefreshInterval)
 
 		ctxLogger = ctxLogger.WithField("iteration", i)
-		ctxLogger.Info("starts refreshing Config")
+		ctxLogger.Info("starts refreshing config")
 
 		changed, err = refresh(config, configer, taskExecutors)
 
-		ctxLogger = ctxLogger.WithField("Config", *config)
+		ctxLogger = ctxLogger.WithField("config", *config)
 		if err != nil {
-			ctxLogger.Errorf("Config refresh error: %v", err)
+			ctxLogger.Errorf("config refresh error: %v", err)
 		} else {
 			result = "no changes"
 			if changed {
-				result = "Config changed"
+				result = "config changed"
 			}
-			ctxLogger.Infof("successfully done refreshing Config: %v", result)
+			ctxLogger.Infof("successfully done refreshing config: %v", result)
 		}
 
 		if refreshIterations > 0 && i >= refreshIterations {
@@ -177,7 +177,7 @@ func refresh(currConfig *Config, configer configer, taskExecutors map[string]exe
 	}
 
 	if !reflect.DeepEqual(newConfig, currConfig) {
-		err = copier.Copy(&currConfig.Rules, &newConfig.Rules)
+		err = copier.Copy(currConfig, newConfig)
 		changed = true
 	}
 	return
