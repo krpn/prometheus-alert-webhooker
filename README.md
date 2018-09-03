@@ -12,7 +12,7 @@ prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://pr
     * [Executor `jenkins`](#executor-jenkins)
     * [Executor `shell`](#executor-shell)
     * [Executor `telegram`](#executor-telegram)
-* [Command-Line Options](#command-line-options)
+* [Command-Line Flags](#command-line-flags)
 * [Exposed Prometheus Metrics](#exposed-prometheus-metrics)
 * [Contribute](#contribute)
 
@@ -36,15 +36,15 @@ prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://pr
 
 1. Prepare config.yaml file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml) (details in [configuration](#configuration))
 
-2. Run container with command ([cli options](#command-line-options)):
+2. Run container with command ([cli flags](#command-line-flags)):
 
     If you use file config:
     
-    `docker run -d -p <port>:8080 -v <path to config.yaml>:/config --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker -v`
+    `docker run -d -p <port>:8080 -v <path to config.yaml>:/config --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker --verbose`
     
     If you use Consul:
     
-    `docker run -d -p <port>:8080 --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker -v -p consul -c http://<consul address>:8500/v1/kv/<path to config>`
+    `docker run -d -p <port>:8080 --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker --verbose --provider consul --config http://<consul address>:8500/v1/kv/<path to config>`
 
 3. Checkout logs:
 
@@ -200,16 +200,17 @@ Executors and it parameters described below.
 
 [(back to top)](#prometheus-alert-webhooker)
 
-# Command-Line Options
+# Command-Line Flags
 
-Usage: `prometheus-alert-webhooker [options]`
+Usage: `prometheus-alert-webhooker [<flags>]`
 
-| Option | Type     | Description                                                                | Default              |
-|--------|:--------:|----------------------------------------------------------------------------|----------------------|
-| `-p`   | `string` | Config provider: file, etcd, consul                                        | `file`               |
-| `-c`   | `string` | Path to config file with extension, can be link for etcd, consul providers | `config/config.yaml` |
-| `-l`   | `string` | HTTP port to listen on                                                     | `:8080`              |
-| `-v`   |          | Enable verbose logging                                                     |                      |
+| Option            | Type     | Description                                                                | Default              |
+|-------------------|:--------:|----------------------------------------------------------------------------|----------------------|
+| `-p` `--provider` | `string` | Config provider: file, etcd, consul                                        | `file`               |
+| `-c` `--config`   | `string` | Path to config file with extension, can be link for etcd, consul providers | `config/config.yaml` |
+| `-l` `--listen`   | `string` | HTTP port to listen on                                                     | `:8080`              |
+| `-v` `--verbose`  |          | Enable verbose logging                                                     |                      |
+| `--help`          |          | Show help                                                                  |                      |
 
 [(back to top)](#prometheus-alert-webhooker)
 

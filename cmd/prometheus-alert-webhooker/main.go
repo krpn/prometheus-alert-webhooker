@@ -1,8 +1,7 @@
 package main
 
 import (
-	"flag"
-	"fmt"
+	"github.com/alecthomas/kingpin"
 	"github.com/coocood/freecache"
 	blc "github.com/krpn/prometheus-alert-webhooker/blocker"
 	cfg "github.com/krpn/prometheus-alert-webhooker/config"
@@ -20,16 +19,15 @@ import (
 	_ "github.com/spf13/viper/remote"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"os/exec"
 	"time"
 )
 
 var (
-	listenAddr     = flag.String("l", ":8080", "HTTP port to listen on")
-	configProvider = flag.String("p", cfg.ProviderFile, "Config provider: file, etcd, consul")
-	configPath     = flag.String("c", "config/config.yaml", "Path to config file with extension, can be link for etcd, consul providers")
-	verbose        = flag.Bool("v", false, "Enable verbose logging")
+	listenAddr     = kingpin.Flag("listen", "HTTP port to listen on").Default(":8080").Short('l').String()
+	configProvider = kingpin.Flag("provider", "Config provider: file, etcd, consul").Default(cfg.ProviderFile).Short('p').String()
+	configPath     = kingpin.Flag("config", "Path to config file with extension, can be link for etcd, consul providers").Default("config/config.yaml").Short('c').String()
+	verbose        = kingpin.Flag("verbose", "Enable verbose logging").Default("false").Short('v').Bool()
 
 	taskExecutors = map[string]executor.TaskExecutor{
 		"shell":    shell.NewExecutor(exec.Command),
@@ -42,11 +40,7 @@ const context = "startup"
 const realRun = 0
 
 func main() {
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %s [options]\n\n", os.Args[0])
-		flag.PrintDefaults()
-	}
-	flag.Parse()
+	_ = kingpin.Parse()
 
 	logger := logrus.New()
 	logger.Formatter = &logrus.JSONFormatter{}

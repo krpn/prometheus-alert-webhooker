@@ -42,5 +42,9 @@
   branch = "master"
   name = "github.com/go-telegram-bot-api/telegram-bot-api"
 
+[[constraint]]
+  name = "github.com/alecthomas/kingpin"
+  version = "2.2.6"
+
 [prune]
   unused-packages = true
