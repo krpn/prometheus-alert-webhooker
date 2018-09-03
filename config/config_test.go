@@ -161,7 +161,7 @@ func TestNew(t *testing.T) {
 			supportedProviders: SupportedProviders,
 			supportedExts:      viper.SupportedExts,
 			configProvider:     ProviderFile,
-			configPath:         "Config/Config.yaml",
+			configPath:         "config/config.yaml",
 			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				eShell.EXPECT().ValidateParameters(map[string]interface{}{
 					"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
@@ -186,7 +186,7 @@ func TestNew(t *testing.T) {
 			supportedProviders: SupportedProviders,
 			supportedExts:      viper.SupportedExts,
 			configProvider:     ProviderFile,
-			configPath:         "Config/Config.json",
+			configPath:         "config/config.json",
 			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				eShell.EXPECT().ValidateParameters(map[string]interface{}{
 					"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
@@ -211,7 +211,7 @@ func TestNew(t *testing.T) {
 			supportedProviders: SupportedProviders,
 			supportedExts:      viper.SupportedExts,
 			configProvider:     ProviderFile,
-			configPath:         "Config/Config.json",
+			configPath:         "config/config.json",
 			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 			},
 			expectedConfig: func() *Config { return nil },
@@ -224,7 +224,7 @@ func TestNew(t *testing.T) {
 			supportedProviders: []string{"file", "consul"},
 			supportedExts:      []string{"json"},
 			configProvider:     ProviderFile,
-			configPath:         "Config/Config.json",
+			configPath:         "config/config.json",
 			readFileFuncErr:    errors.New("read file error"),
 			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
@@ -234,19 +234,19 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "read Config error",
+			tcase:              "read config error",
 			configBytes:        []byte("some raw cfg"),
 			configer:           configerMock,
 			supportedProviders: []string{"file", "consul"},
 			supportedExts:      []string{"json"},
 			configProvider:     ProviderFile,
-			configPath:         "Config/Config.json",
+			configPath:         "config/config.json",
 			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
-				c.EXPECT().ReadConfig(bytes.NewReader(configBytes)).Return(errors.New("read Config error"))
+				c.EXPECT().ReadConfig(bytes.NewReader(configBytes)).Return(errors.New("read config error"))
 			},
 			expectedConfig: func() *Config { return nil },
-			expectedErr:    errors.New("read Config error"),
+			expectedErr:    errors.New("read config error"),
 			expectedLogs:   []string{},
 		},
 		{
@@ -256,7 +256,7 @@ func TestNew(t *testing.T) {
 			supportedProviders: []string{"file"},
 			supportedExts:      []string{"json"},
 			configProvider:     ProviderFile,
-			configPath:         "Config/Config.json",
+			configPath:         "config/config.json",
 			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().ReadConfig(bytes.NewReader(configBytes)).Return(nil)
@@ -267,32 +267,32 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "unsupported Config profider",
+			tcase:              "unsupported config profider",
 			configBytes:        []byte("some raw cfg"),
 			configer:           configerMock,
 			supportedProviders: []string{"file"},
 			supportedExts:      []string{"json"},
 			configProvider:     "zookeeper",
-			configPath:         "Config/Config.jpeg",
+			configPath:         "config/config.jpeg",
 			refreshIterations:  1,
 			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 			},
 			expectedConfig: func() *Config { return nil },
-			expectedErr:    errors.New("unsupported Config provider zookeeper"),
+			expectedErr:    errors.New("unsupported config provider zookeeper"),
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "unsupported Config type",
+			tcase:              "unsupported config type",
 			configBytes:        []byte("some raw cfg"),
 			configer:           configerMock,
 			supportedProviders: []string{"file"},
 			supportedExts:      []string{"json"},
 			configProvider:     ProviderFile,
-			configPath:         "Config/Config.jpeg",
+			configPath:         "config/config.jpeg",
 			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 			},
 			expectedConfig: func() *Config { return nil },
-			expectedErr:    errors.New("unsupported Config type jpeg"),
+			expectedErr:    errors.New("unsupported config type jpeg"),
 			expectedLogs:   []string{},
 		},
 		{
@@ -342,7 +342,7 @@ func TestNew(t *testing.T) {
 			expectedLogs:      []string{},
 		},
 		{
-			tcase:              "read remote Config + 2 refresh iterations (no changes + error)",
+			tcase:              "read remote config + 2 refresh iterations (no changes + error)",
 			configBytes:        jsonConfigBytes,
 			configer:           configerMock,
 			supportedProviders: SupportedProviders,
@@ -382,19 +382,19 @@ func TestNew(t *testing.T) {
 				c.EXPECT().Unmarshal(&Config{}).SetArg(0, *newConf).Return(nil)
 
 				// 2nd refresh
-				c.EXPECT().WatchRemoteConfig().Return(errors.New("watch remote Config error"))
+				c.EXPECT().WatchRemoteConfig().Return(errors.New("watch remote config error"))
 			},
 			expectedConfig: func() *Config { return getExpectedConfigCompiled(taskExecutors) },
 			expectedErr:    nil,
 			expectedLogs: []string{
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing Config: no changes","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":2,"level":"info","msg":"starts refreshing Config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":2,"level":"error","msg":"Config refresh error: watch remote Config error","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing config: no changes","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":2,"level":"info","msg":"starts refreshing config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":2,"level":"error","msg":"config refresh error: watch remote config error","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
 			},
 		},
 		{
-			tcase:              "read remote Config + 1 refresh iteration with changes",
+			tcase:              "read remote config + 1 refresh iteration with changes",
 			configBytes:        jsonConfigBytes,
 			configer:           configerMock,
 			supportedProviders: SupportedProviders,
@@ -445,8 +445,8 @@ func TestNew(t *testing.T) {
 			},
 			expectedErr: nil,
 			expectedLogs: []string{
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"testrule1","Conditions":{"AlertStatus":"firing","AlertLabels":{"a":"b"},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"aa":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}"},"Block":10000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing Config: Config changed","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing config","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
+				`{"config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"testrule1","Conditions":{"AlertStatus":"firing","AlertLabels":{"a":"b"},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"aa":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}"},"Block":10000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing config: config changed","params":{"configPath":"common/webhooker.json","configProvider":"consul"}}`,
 			},
 		},
 		{
@@ -467,7 +467,7 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "read remote Config error",
+			tcase:              "read remote config error",
 			configBytes:        []byte("some raw cfg"),
 			configer:           configerMock,
 			supportedProviders: SupportedProviders,
@@ -478,10 +478,10 @@ func TestNew(t *testing.T) {
 			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().AddRemoteProvider("consul", "127.0.0.1:4001", "common/webhooker.json").Return(nil)
-				c.EXPECT().ReadRemoteConfig().Return(errors.New("read remote Config error"))
+				c.EXPECT().ReadRemoteConfig().Return(errors.New("read remote config error"))
 			},
 			expectedConfig: func() *Config { return nil },
-			expectedErr:    errors.New("read remote Config error"),
+			expectedErr:    errors.New("read remote config error"),
 			expectedLogs:   []string{},
 		},
 	}
@@ -573,8 +573,8 @@ func TestRefreshDaemon(t *testing.T) {
 			},
 			expectedRules: model.Rules{getTestRuleCompiled(1, taskExecutors)},
 			expectedLogs: []string{
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"testrule1","Conditions":{"AlertStatus":"firing","AlertLabels":{"a":"b"},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"aa":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}"},"Block":10000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing Config: Config changed","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
+				`{"config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing config","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
+				`{"config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"testrule1","Conditions":{"AlertStatus":"firing","AlertLabels":{"a":"b"},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"aa":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}"},"Block":10000000000,"TaskExecutor":{}}]}]},"context":"startup","iteration":1,"level":"info","msg":"successfully done refreshing config: config changed","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
 			},
 		},
 		{
@@ -588,8 +588,8 @@ func TestRefreshDaemon(t *testing.T) {
 			newConfig:     func() *Config { return nil },
 			expectedRules: getExpectedConfigCompiled(taskExecutors).Rules,
 			expectedLogs: []string{
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing Config","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
-				`{"Config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"error","msg":"Config refresh error: error","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
+				`{"config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"info","msg":"starts refreshing config","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
+				`{"config":{"BlockCacheSize":104857600,"PoolSize":100,"Runners":30,"RemoteConfigRefreshInterval":1,"CommonParameters":{"jenkins1":{"endpoint":"https://j.company.com/","login":"admin","password":"qwerty123"}},"Rules":[{"Name":"LowDiskSpaceFix","Conditions":{"AlertStatus":"firing","AlertLabels":{"alertname":"LowDiskSpace"},"AlertLabelsRegexp":{"instance":{}},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_enabled":{}}},"Actions":[{"Executor":"shell","CommonParameters":"","Parameters":{"command":"./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}"},"Block":600000000000,"TaskExecutor":{}}]},{"Name":"AnyAlertFix","Conditions":{"AlertStatus":"firing","AlertLabels":{},"AlertLabelsRegexp":{},"AlertAnnotations":{},"AlertAnnotationsRegexp":{"webhooker_job":{}}},"Actions":[{"Executor":"jenkins","CommonParameters":"jenkins1","Parameters":{"endpoint":"https://j.company.com/","instance":"${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}","job_name":"${ANNOTATIONS_WEBHOOKER_JOB}","login":"admin","password":"qwerty123"},"Block":300000000000,"TaskExecutor":null}]}]},"context":"startup","iteration":1,"level":"error","msg":"config refresh error: error","params":{"configPath":"https://consul/test.json","configProvider":"consul"}}`,
 			},
 		},
 	}
@@ -627,18 +627,20 @@ func TestRefresh(t *testing.T) {
 
 	type testTableData struct {
 		tcase           string
-		config          *Config
+		config          func() *Config
 		expectFunc      func(c *Mockconfiger, e *executor.MockTaskExecutor, ec *Config)
 		newConfig       func() *Config
-		expectedRules   model.Rules
+		expectedConfig  func() *Config
 		expectedChanged bool
 		expectedErr     error
 	}
 
 	testTable := []testTableData{
 		{
-			tcase:  "refreshed",
-			config: getExpectedConfigCompiled(taskExecutors),
+			tcase: "refreshed",
+			config: func() *Config {
+				return getExpectedConfigCompiled(taskExecutors)
+			},
 			expectFunc: func(c *Mockconfiger, e *executor.MockTaskExecutor, ec *Config) {
 				c.EXPECT().WatchRemoteConfig().Return(nil)
 				c.EXPECT().Unmarshal(&Config{}).SetArg(0, *ec).Return(nil)
@@ -651,36 +653,113 @@ func TestRefresh(t *testing.T) {
 				config.Rules = model.Rules{getTestRuleUncompiled(1)}
 				return config
 			},
-			expectedRules:   model.Rules{getTestRuleCompiled(1, taskExecutors)},
+			expectedConfig: func() *Config {
+				config := getExpectedConfigCompiled(taskExecutors)
+				config.Rules = model.Rules{getTestRuleCompiled(1, taskExecutors)}
+				return config
+			},
 			expectedChanged: true,
 			expectedErr:     nil,
 		},
 		{
-			tcase:  "watch remote Config error",
-			config: getExpectedConfigCompiled(taskExecutors),
+			tcase: "refreshed common params amd refresh interval",
+			config: func() *Config {
+				config := getExpectedConfigCompiled(taskExecutors)
+				config.CommonParameters = map[string]map[string]interface{}{
+					"some_parameters": {
+						"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
+					},
+				}
+				rule := getTestRuleCompiled(1, taskExecutors)
+				action := rule.Actions[0]
+				action.CommonParameters = "some_parameters"
+				action.Parameters = map[string]interface{}{
+					"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
+				}
+				rule.Actions[0] = action
+				config.Rules = model.Rules{rule}
+				return config
+			},
+			expectFunc: func(c *Mockconfiger, e *executor.MockTaskExecutor, ec *Config) {
+				c.EXPECT().WatchRemoteConfig().Return(nil)
+				c.EXPECT().Unmarshal(&Config{}).SetArg(0, *ec).Return(nil)
+				e.EXPECT().ValidateParameters(map[string]interface{}{
+					"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
+				}).Return(nil)
+			},
+			newConfig: func() *Config {
+				config := getExpectedConfigUncompiled()
+				config.RemoteConfigRefreshInterval = 1 * time.Hour
+				config.CommonParameters = map[string]map[string]interface{}{
+					"some_parameters_2": {
+						"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
+					},
+				}
+				rule := getTestRuleUncompiled(1)
+				action := rule.Actions[0]
+				action.CommonParameters = "some_parameters_2"
+				action.Parameters = nil
+				rule.Actions[0] = action
+				config.Rules = model.Rules{rule}
+				return config
+			},
+			expectedConfig: func() *Config {
+				config := getExpectedConfigCompiled(taskExecutors)
+				config.RemoteConfigRefreshInterval = 1 * time.Hour
+				config.CommonParameters = map[string]map[string]interface{}{
+					"some_parameters_2": {
+						"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
+					},
+				}
+				rule := getTestRuleCompiled(1, taskExecutors)
+				action := rule.Actions[0]
+				action.CommonParameters = "some_parameters_2"
+				action.Parameters = map[string]interface{}{
+					"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
+				}
+				rule.Actions[0] = action
+				config.Rules = model.Rules{rule}
+				return config
+			},
+			expectedChanged: true,
+			expectedErr:     nil,
+		},
+		{
+			tcase: "watch remote config error",
+			config: func() *Config {
+				return getExpectedConfigCompiled(taskExecutors)
+			},
 			expectFunc: func(c *Mockconfiger, e *executor.MockTaskExecutor, ec *Config) {
 				c.EXPECT().WatchRemoteConfig().Return(errors.New("error"))
 			},
-			newConfig:       func() *Config { return nil },
-			expectedRules:   getExpectedConfigCompiled(taskExecutors).Rules,
+			newConfig: func() *Config { return nil },
+			expectedConfig: func() *Config {
+				return getExpectedConfigCompiled(taskExecutors)
+			},
 			expectedChanged: false,
 			expectedErr:     errors.New("error"),
 		},
 		{
-			tcase:  "unmarshall Config error",
-			config: getExpectedConfigCompiled(taskExecutors),
+			tcase: "unmarshall config error",
+			config: func() *Config {
+				return getExpectedConfigCompiled(taskExecutors)
+			},
 			expectFunc: func(c *Mockconfiger, e *executor.MockTaskExecutor, ec *Config) {
 				c.EXPECT().WatchRemoteConfig().Return(nil)
 				c.EXPECT().Unmarshal(&Config{}).Return(errors.New("unmarshall error"))
 			},
-			newConfig:       func() *Config { return nil },
-			expectedRules:   getExpectedConfigCompiled(taskExecutors).Rules,
+			newConfig: func() *Config { return nil },
+			expectedConfig: func() *Config {
+				return getExpectedConfigCompiled(taskExecutors)
+			},
 			expectedChanged: false,
 			expectedErr:     errors.New("unmarshall error"),
 		},
 		{
-			tcase:  "prepare rules error",
-			config: getExpectedConfigCompiled(taskExecutors),
+			tcase: "prepare rules error",
+			config: func() *Config {
+				return getExpectedConfigCompiled(taskExecutors)
+			},
 			expectFunc: func(c *Mockconfiger, e *executor.MockTaskExecutor, ec *Config) {
 				c.EXPECT().WatchRemoteConfig().Return(nil)
 				c.EXPECT().Unmarshal(&Config{}).SetArg(0, *ec).Return(nil)
@@ -690,7 +769,9 @@ func TestRefresh(t *testing.T) {
 				config.Rules = nil
 				return config
 			},
-			expectedRules:   getExpectedConfigCompiled(taskExecutors).Rules,
+			expectedConfig: func() *Config {
+				return getExpectedConfigCompiled(taskExecutors)
+			},
 			expectedChanged: false,
 			expectedErr:     errors.New("empty rules list"),
 		},
@@ -698,10 +779,11 @@ func TestRefresh(t *testing.T) {
 
 	for _, testUnit := range testTable {
 		testUnit.expectFunc(configerMock, executorMock, testUnit.newConfig())
-		changed, err := refresh(testUnit.config, configerMock, taskExecutors)
+		config := testUnit.config()
+		changed, err := refresh(config, configerMock, taskExecutors)
 		assert.Equal(t, testUnit.expectedChanged, changed, testUnit.tcase)
 		assert.Equal(t, testUnit.expectedErr, err, testUnit.tcase)
-		assert.Equal(t, testUnit.expectedRules, testUnit.config.Rules, testUnit.tcase)
+		assert.Equal(t, testUnit.expectedConfig(), config, testUnit.tcase)
 	}
 }
 
