@@ -63,11 +63,11 @@ func TestStart(t *testing.T) {
 						for _, t := range ts {
 							t.EXPECT().BlockTTL().Return(10 * time.Minute)
 							t.EXPECT().Fingerprint().Return("testfp2")
-							b.EXPECT().BlockInProgress("testfp2").Return(false, nil)
+							t.EXPECT().ExecutorName().Return("shell").Times(4)
+							b.EXPECT().BlockInProgress("shell", "testfp2").Return(false, nil)
 							t.EXPECT().EventID().Return("testid2").Times(2)
 							t.EXPECT().Rule().Return("testrule2").Times(3)
 							t.EXPECT().Alert().Return("testalert2").Times(3)
-							t.EXPECT().ExecutorName().Return("shell").Times(3)
 							t.EXPECT().ExecutorDetails().Return("testtask2").Times(2)
 							m.EXPECT().ExecutedTaskObserve("testrule2", "testalert2", "shell", execResultInBlock.String(), nil, 0*time.Second)
 						}
@@ -79,13 +79,13 @@ func TestStart(t *testing.T) {
 						for _, t := range ts {
 							t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
 							t.EXPECT().Fingerprint().Return("testfp3").Times(2)
-							b.EXPECT().BlockInProgress("testfp3").Return(true, nil)
+							t.EXPECT().ExecutorName().Return("shell").Times(5)
+							b.EXPECT().BlockInProgress("shell", "testfp3").Return(true, nil)
 							t.EXPECT().Exec(l).Return(nil)
-							b.EXPECT().BlockForTTL("testfp3", 10*time.Minute).Return(nil)
+							b.EXPECT().BlockForTTL("shell", "testfp3", 10*time.Minute).Return(nil)
 							t.EXPECT().EventID().Return("testid3").Times(2)
 							t.EXPECT().Rule().Return("testrule3").Times(3)
 							t.EXPECT().Alert().Return("testalert3").Times(3)
-							t.EXPECT().ExecutorName().Return("shell").Times(3)
 							t.EXPECT().ExecutorDetails().Return("testtask3").Times(2)
 							m.EXPECT().ExecutedTaskObserve("testrule3", "testalert3", "shell", execResultSuccess.String(), nil, 0*time.Second)
 						}
@@ -107,13 +107,13 @@ func TestStart(t *testing.T) {
 
 							t.EXPECT().BlockTTL().Return(10 * time.Minute)
 							t.EXPECT().Fingerprint().Return("testfp4").Times(2)
-							b.EXPECT().BlockInProgress("testfp4").Return(true, nil)
+							t.EXPECT().ExecutorName().Return("shell").Times(5)
+							b.EXPECT().BlockInProgress("shell", "testfp4").Return(true, nil)
 							t.EXPECT().Exec(l).Return(errors.New("exec error"))
-							b.EXPECT().Unblock("testfp4")
+							b.EXPECT().Unblock("shell", "testfp4")
 							t.EXPECT().EventID().Return("testid4").Times(2)
 							t.EXPECT().Rule().Return("testrule4").Times(3)
 							t.EXPECT().Alert().Return("testalert4").Times(3)
-							t.EXPECT().ExecutorName().Return("shell").Times(3)
 							t.EXPECT().ExecutorDetails().Return("testtask4").Times(2)
 							m.EXPECT().ExecutedTaskObserve("testrule4", "testalert4", "shell", execResultExecError.String(), errors.New("exec error"), 0*time.Second)
 						}
@@ -137,15 +137,17 @@ func TestStart(t *testing.T) {
 							if i == 0 {
 								t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
 								t.EXPECT().Fingerprint().Return(fmt.Sprintf("testfp%v", i+shift)).Times(2)
-								b.EXPECT().BlockInProgress(fmt.Sprintf("testfp%v", i+shift)).Return(true, nil)
+								t.EXPECT().ExecutorName().Return("shell").Times(2)
+								b.EXPECT().BlockInProgress("shell", fmt.Sprintf("testfp%v", i+shift)).Return(true, nil)
 								t.EXPECT().Exec(l).Return(nil)
 								result = execResultSuccess
-								b.EXPECT().BlockForTTL(fmt.Sprintf("testfp%v", i+shift), 10*time.Minute).Return(nil)
+								b.EXPECT().BlockForTTL("shell", fmt.Sprintf("testfp%v", i+shift), 10*time.Minute).Return(nil)
 							}
 							if i == 1 {
 								t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(1)
 								t.EXPECT().Fingerprint().Return(fmt.Sprintf("testfp%v", i+shift))
-								b.EXPECT().BlockInProgress(fmt.Sprintf("testfp%v", i+shift)).Return(false, nil)
+								t.EXPECT().ExecutorName().Return("shell")
+								b.EXPECT().BlockInProgress("shell", fmt.Sprintf("testfp%v", i+shift)).Return(false, nil)
 								result = execResultInBlock
 							}
 							t.EXPECT().EventID().Return(fmt.Sprintf("testid%v", i+shift)).Times(2)

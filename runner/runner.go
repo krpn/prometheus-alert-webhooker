@@ -66,9 +66,9 @@ func runner(tasksCh chan model.Tasks, blocker blocker, metric metricser, logger 
 //go:generate mockgen -source=runner.go -destination=runner_mocks.go -package=runner doc github.com/golang/mock/gomock
 
 type blocker interface {
-	BlockInProgress(fingerprint string) (blockedSuccessfully bool, err error)
-	BlockForTTL(fingerprint string, ttl time.Duration) (err error)
-	Unblock(fingerprint string)
+	BlockInProgress(executor, fingerprint string) (blockedSuccessfully bool, err error)
+	BlockForTTL(executor, fingerprint string, ttl time.Duration) (err error)
+	Unblock(executor, fingerprint string)
 }
 
 type metricser interface {

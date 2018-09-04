@@ -20,43 +20,52 @@ func TestBlocker_BlockInProgress(t *testing.T) {
 
 	type testTableData struct {
 		tcase                       string
+		executor                    string
 		fingerprint                 string
-		expectFunc                  func(m *Mockcacher, fingerprint string)
+		expectFunc                  func(m *Mockcacher, key []byte)
 		expectedBlockedSuccessfully bool
 		expectedErr                 error
 	}
 
 	testTable := []testTableData{
 		{
-			tcase: "blocked successfully",
-			expectFunc: func(m *Mockcacher, fingerprint string) {
-				m.EXPECT().Get([]byte(fingerprint)).Return(nil, freecache.ErrNotFound)
-				m.EXPECT().Set([]byte(fingerprint), defValue, foreverTTL).Return(nil)
+			tcase:       "blocked successfully",
+			executor:    "jenkins",
+			fingerprint: "test",
+			expectFunc: func(m *Mockcacher, key []byte) {
+				m.EXPECT().Get(key).Return(nil, freecache.ErrNotFound)
+				m.EXPECT().Set(key, defValue, foreverTTL).Return(nil)
 			},
 			expectedBlockedSuccessfully: true,
 			expectedErr:                 nil,
 		},
 		{
-			tcase: "block error",
-			expectFunc: func(m *Mockcacher, fingerprint string) {
-				m.EXPECT().Get([]byte(fingerprint)).Return(nil, freecache.ErrNotFound)
-				m.EXPECT().Set([]byte(fingerprint), defValue, foreverTTL).Return(errors.New("set error"))
+			tcase:       "block error",
+			executor:    "jenkins",
+			fingerprint: "test",
+			expectFunc: func(m *Mockcacher, key []byte) {
+				m.EXPECT().Get(key).Return(nil, freecache.ErrNotFound)
+				m.EXPECT().Set(key, defValue, foreverTTL).Return(errors.New("set error"))
 			},
 			expectedBlockedSuccessfully: false,
 			expectedErr:                 errors.New("set error"),
 		},
 		{
-			tcase: "already blocked",
-			expectFunc: func(m *Mockcacher, fingerprint string) {
-				m.EXPECT().Get([]byte(fingerprint)).Return([]byte(defValue), nil)
+			tcase:       "already blocked",
+			executor:    "jenkins",
+			fingerprint: "test",
+			expectFunc: func(m *Mockcacher, key []byte) {
+				m.EXPECT().Get(key).Return([]byte(defValue), nil)
 			},
 			expectedBlockedSuccessfully: false,
 			expectedErr:                 nil,
 		},
 		{
-			tcase: "check block error",
-			expectFunc: func(m *Mockcacher, fingerprint string) {
-				m.EXPECT().Get([]byte(fingerprint)).Return(nil, errors.New("get error"))
+			tcase:       "check block error",
+			executor:    "jenkins",
+			fingerprint: "test",
+			expectFunc: func(m *Mockcacher, key []byte) {
+				m.EXPECT().Get(key).Return(nil, errors.New("get error"))
 			},
 			expectedBlockedSuccessfully: false,
 			expectedErr:                 errors.New("get error"),
@@ -64,8 +73,9 @@ func TestBlocker_BlockInProgress(t *testing.T) {
 	}
 
 	for _, testUnit := range testTable {
-		testUnit.expectFunc(cache, testUnit.fingerprint)
-		blockedSuccessfully, err := blocker.BlockInProgress(testUnit.fingerprint)
+		key := getBlockKey(testUnit.executor, testUnit.fingerprint)
+		testUnit.expectFunc(cache, key)
+		blockedSuccessfully, err := blocker.BlockInProgress(testUnit.executor, testUnit.fingerprint)
 		assert.Equal(t, testUnit.expectedBlockedSuccessfully, blockedSuccessfully, testUnit.tcase)
 		assert.Equal(t, testUnit.expectedErr, err, testUnit.tcase)
 	}
@@ -82,36 +92,40 @@ func TestBlocker_BlockForTTL(t *testing.T) {
 
 	type testTableData struct {
 		tcase       string
+		executor    string
 		fingerprint string
 		ttl         time.Duration
-		expectFunc  func(m *Mockcacher, fingerprint string, ttl time.Duration)
+		expectFunc  func(m *Mockcacher, key []byte, ttl time.Duration)
 		expectedErr error
 	}
 
 	testTable := []testTableData{
 		{
 			tcase:       "success",
+			executor:    "jenkins",
 			fingerprint: "test",
 			ttl:         10 * time.Second,
-			expectFunc: func(m *Mockcacher, fingerprint string, ttl time.Duration) {
-				m.EXPECT().Set([]byte(fingerprint), []byte(defValue), int(ttl.Seconds())).Return(nil)
+			expectFunc: func(m *Mockcacher, key []byte, ttl time.Duration) {
+				m.EXPECT().Set(key, []byte(defValue), int(ttl.Seconds())).Return(nil)
 			},
 			expectedErr: nil,
 		},
 		{
 			tcase:       "error",
+			executor:    "jenkins",
 			fingerprint: "test",
 			ttl:         10 * time.Second,
-			expectFunc: func(m *Mockcacher, fingerprint string, ttl time.Duration) {
-				m.EXPECT().Set([]byte(fingerprint), []byte(defValue), int(ttl.Seconds())).Return(errors.New("some error"))
+			expectFunc: func(m *Mockcacher, key []byte, ttl time.Duration) {
+				m.EXPECT().Set(key, []byte(defValue), int(ttl.Seconds())).Return(errors.New("some error"))
 			},
 			expectedErr: errors.New("some error"),
 		},
 	}
 
 	for _, testUnit := range testTable {
-		testUnit.expectFunc(cache, testUnit.fingerprint, testUnit.ttl)
-		err := blocker.BlockForTTL(testUnit.fingerprint, testUnit.ttl)
+		key := getBlockKey(testUnit.executor, testUnit.fingerprint)
+		testUnit.expectFunc(cache, key, testUnit.ttl)
+		err := blocker.BlockForTTL(testUnit.executor, testUnit.fingerprint, testUnit.ttl)
 		assert.Equal(t, testUnit.expectedErr, err, testUnit.tcase)
 	}
 }
@@ -127,7 +141,7 @@ func TestBlocker_BlockAsync(t *testing.T) {
 	errCh := make(chan error, interations)
 
 	ablock := func(bCh chan bool, eCh chan error) {
-		b, e := blocker.BlockInProgress("test")
+		b, e := blocker.BlockInProgress("jenkins", "test")
 		bCh <- b
 		eCh <- e
 	}
@@ -165,7 +179,31 @@ func TestBlocker_Unblock(t *testing.T) {
 	cache := NewMockcacher(ctrl)
 	blocker := New(cache)
 
-	cache.EXPECT().Del([]byte("test")).Return(true)
+	key := getBlockKey("jenkins", "test")
 
-	blocker.Unblock("test")
+	cache.EXPECT().Del(key).Return(true)
+
+	blocker.Unblock("jenkins", "test")
+}
+
+func Test_GetKey(t *testing.T) {
+	t.Parallel()
+
+	type testTableData struct {
+		executor    string
+		fingerprint string
+		expected    []byte
+	}
+
+	testTable := []testTableData{
+		{
+			executor:    "jenkins",
+			fingerprint: "test",
+			expected:    []byte("jenkins_test"),
+		},
+	}
+
+	for _, testUnit := range testTable {
+		assert.Equal(t, getBlockKey(testUnit.executor, testUnit.fingerprint), testUnit.expected)
+	}
 }
