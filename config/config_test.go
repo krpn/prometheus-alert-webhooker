@@ -119,6 +119,54 @@ rules:
   "runners": 30
 }
 `)
+
+	jsonConfigTelegramChatIDBytes = []byte(`
+{
+  "block_cache_size": 104857600,
+  "pool_size": 100,
+  "runners": 30,
+  "remote_config_refresh_interval": "1ns",
+  "rules": [
+    {
+      "name": "LowDiskSpaceFix",
+      "conditions": {
+        "alert_annotations": {
+          "webhooker_enabled": "(.*?)"
+        }
+      },
+      "actions": [
+        {
+          "executor": "telegram",
+          "parameters": {
+            "bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+            "chat_id": -1001103941234,
+            "message": "Fixed ${LABEL_ALERTNAME}"
+          },
+          "block": "10m"
+        }
+      ]
+    }
+  ]
+}
+`)
+	yamlConfigTelegramChatIDBytes = []byte(`
+block_cache_size: 104857600
+pool_size: 100
+runners: 30
+remote_config_refresh_interval: 1ns
+rules:
+- name: LowDiskSpaceFix
+  conditions:
+    alert_annotations:
+      webhooker_enabled: "(.*?)"
+  actions:
+  - executor: telegram
+    parameters:
+      bot_token: 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
+      chat_id: -1001103941234
+      message: Fixed ${LABEL_ALERTNAME}
+    block: 10m
+`)
 )
 
 func TestNew(t *testing.T) {
@@ -131,10 +179,18 @@ func TestNew(t *testing.T) {
 
 	executorShellMock := executor.NewMockTaskExecutor(ctrl)
 	executorJenkinsMock := executor.NewMockTaskExecutor(ctrl)
+	executorTelegram := executor.NewMockTaskExecutor(ctrl)
 
 	taskExecutors := map[string]executor.TaskExecutor{
-		"shell":   executorShellMock,
-		"jenkins": executorJenkinsMock,
+		"shell":    executorShellMock,
+		"jenkins":  executorJenkinsMock,
+		"telegram": executorTelegram,
+	}
+
+	taskExecutorsMocks := map[string]*executor.MockTaskExecutor{
+		"shell":    executorShellMock,
+		"jenkins":  executorJenkinsMock,
+		"telegram": executorTelegram,
 	}
 
 	type testTableData struct {
@@ -147,7 +203,7 @@ func TestNew(t *testing.T) {
 		configPath         string
 		refreshIterations  int
 		readFileFuncErr    error
-		expectFunc         func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T)
+		expectFunc         func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T)
 		expectedConfig     func() *Config
 		expectedErr        error
 		expectedLogs       []string
@@ -162,11 +218,11 @@ func TestNew(t *testing.T) {
 			supportedExts:      viper.SupportedExts,
 			configProvider:     ProviderFile,
 			configPath:         "config/config.yaml",
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
-				eShell.EXPECT().ValidateParameters(map[string]interface{}{
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+				eMocks["shell"].EXPECT().ValidateParameters(map[string]interface{}{
 					"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
 				}).Return(nil)
-				eJenkins.EXPECT().ValidateParameters(
+				eMocks["jenkins"].EXPECT().ValidateParameters(
 					map[string]interface{}{
 						"job_name": "${ANNOTATIONS_WEBHOOKER_JOB}",
 						"instance": "${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
@@ -187,11 +243,11 @@ func TestNew(t *testing.T) {
 			supportedExts:      viper.SupportedExts,
 			configProvider:     ProviderFile,
 			configPath:         "config/config.json",
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
-				eShell.EXPECT().ValidateParameters(map[string]interface{}{
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+				eMocks["shell"].EXPECT().ValidateParameters(map[string]interface{}{
 					"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
 				}).Return(nil)
-				eJenkins.EXPECT().ValidateParameters(
+				eMocks["jenkins"].EXPECT().ValidateParameters(
 					map[string]interface{}{
 						"job_name": "${ANNOTATIONS_WEBHOOKER_JOB}",
 						"instance": "${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
@@ -212,7 +268,7 @@ func TestNew(t *testing.T) {
 			supportedExts:      viper.SupportedExts,
 			configProvider:     ProviderFile,
 			configPath:         "config/config.json",
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 			},
 			expectedConfig: func() *Config { return nil },
 			expectedErr:    errors.New("empty rules list"),
@@ -226,7 +282,7 @@ func TestNew(t *testing.T) {
 			configProvider:     ProviderFile,
 			configPath:         "config/config.json",
 			readFileFuncErr:    errors.New("read file error"),
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 			},
 			expectedConfig: func() *Config { return nil },
@@ -241,7 +297,7 @@ func TestNew(t *testing.T) {
 			supportedExts:      []string{"json"},
 			configProvider:     ProviderFile,
 			configPath:         "config/config.json",
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().ReadConfig(bytes.NewReader(configBytes)).Return(errors.New("read config error"))
 			},
@@ -257,7 +313,7 @@ func TestNew(t *testing.T) {
 			supportedExts:      []string{"json"},
 			configProvider:     ProviderFile,
 			configPath:         "config/config.json",
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().ReadConfig(bytes.NewReader(configBytes)).Return(nil)
 				c.EXPECT().Unmarshal(&Config{}).Return(errors.New("unmarshal error"))
@@ -275,7 +331,7 @@ func TestNew(t *testing.T) {
 			configProvider:     "zookeeper",
 			configPath:         "config/config.jpeg",
 			refreshIterations:  1,
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 			},
 			expectedConfig: func() *Config { return nil },
 			expectedErr:    errors.New("unsupported config provider zookeeper"),
@@ -289,7 +345,7 @@ func TestNew(t *testing.T) {
 			supportedExts:      []string{"json"},
 			configProvider:     ProviderFile,
 			configPath:         "config/config.jpeg",
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 			},
 			expectedConfig: func() *Config { return nil },
 			expectedErr:    errors.New("unsupported config type jpeg"),
@@ -304,7 +360,7 @@ func TestNew(t *testing.T) {
 			configProvider:     "consul",
 			configPath:         "http://127 0 0 1:4001/config/hugo.json?ver=1",
 			refreshIterations:  1,
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 			},
 			expectedConfig: func() *Config { return nil },
 			expectedErr:    &url.Error{Op: "parse", URL: "http://127 0 0 1:4001/config/hugo.json?ver=1", Err: url.InvalidHostError(" ")},
@@ -318,7 +374,7 @@ func TestNew(t *testing.T) {
 			supportedExts:      []string{"json"},
 			configProvider:     ProviderFile,
 			configPath:         "http://127.0.0.1:4001/config/hugo.json",
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 			},
 			expectedConfig: func() *Config { return nil },
@@ -333,7 +389,7 @@ func TestNew(t *testing.T) {
 			supportedExts:      []string{"json"},
 			configProvider:     "etcd",
 			configPath:         "config/hugo.json",
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 			},
 			refreshIterations: 1,
@@ -350,7 +406,7 @@ func TestNew(t *testing.T) {
 			configProvider:     "consul",
 			configPath:         "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
 			refreshIterations:  2,
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().AddRemoteProvider("consul", "127.0.0.1:4001", "common/webhooker.json").Return(nil)
 				c.EXPECT().ReadRemoteConfig().Return(nil)
@@ -363,10 +419,10 @@ func TestNew(t *testing.T) {
 
 				c.EXPECT().Unmarshal(&Config{}).SetArg(0, *conf).Return(nil)
 
-				eShell.EXPECT().ValidateParameters(map[string]interface{}{
+				eMocks["shell"].EXPECT().ValidateParameters(map[string]interface{}{
 					"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
 				}).Return(nil).Times(2)
-				eJenkins.EXPECT().ValidateParameters(
+				eMocks["jenkins"].EXPECT().ValidateParameters(
 					map[string]interface{}{
 						"job_name": "${ANNOTATIONS_WEBHOOKER_JOB}",
 						"instance": "${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
@@ -402,7 +458,7 @@ func TestNew(t *testing.T) {
 			configProvider:     "consul",
 			configPath:         "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
 			refreshIterations:  1,
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().AddRemoteProvider("consul", "127.0.0.1:4001", "common/webhooker.json").Return(nil)
 				c.EXPECT().ReadRemoteConfig().Return(nil)
@@ -415,10 +471,10 @@ func TestNew(t *testing.T) {
 
 				c.EXPECT().Unmarshal(&Config{}).SetArg(0, *conf).Return(nil)
 
-				eShell.EXPECT().ValidateParameters(map[string]interface{}{
+				eMocks["shell"].EXPECT().ValidateParameters(map[string]interface{}{
 					"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
 				}).Return(nil)
-				eJenkins.EXPECT().ValidateParameters(
+				eMocks["jenkins"].EXPECT().ValidateParameters(
 					map[string]interface{}{
 						"job_name": "${ANNOTATIONS_WEBHOOKER_JOB}",
 						"instance": "${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
@@ -434,7 +490,7 @@ func TestNew(t *testing.T) {
 				newConf.Rules = model.Rules{getTestRuleUncompiled(1)}
 				c.EXPECT().Unmarshal(&Config{}).SetArg(0, *newConf).Return(nil)
 
-				eShell.EXPECT().ValidateParameters(map[string]interface{}{
+				eMocks["shell"].EXPECT().ValidateParameters(map[string]interface{}{
 					"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
 				}).Return(nil)
 			},
@@ -458,7 +514,7 @@ func TestNew(t *testing.T) {
 			configProvider:     "consul",
 			configPath:         "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
 			refreshIterations:  1,
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().AddRemoteProvider("consul", "127.0.0.1:4001", "common/webhooker.json").Return(errors.New("add remote provider error"))
 			},
@@ -475,7 +531,7 @@ func TestNew(t *testing.T) {
 			configProvider:     "consul",
 			configPath:         "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
 			refreshIterations:  1,
-			expectFunc: func(c *Mockconfiger, eShell *executor.MockTaskExecutor, eJenkins *executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().AddRemoteProvider("consul", "127.0.0.1:4001", "common/webhooker.json").Return(nil)
 				c.EXPECT().ReadRemoteConfig().Return(errors.New("read remote config error"))
@@ -483,6 +539,110 @@ func TestNew(t *testing.T) {
 			expectedConfig: func() *Config { return nil },
 			expectedErr:    errors.New("read remote config error"),
 			expectedLogs:   []string{},
+		},
+		{
+			tcase:              "json with integer",
+			configBytes:        jsonConfigTelegramChatIDBytes,
+			configer:           viper.New(),
+			supportedProviders: SupportedProviders,
+			supportedExts:      viper.SupportedExts,
+			configProvider:     ProviderFile,
+			configPath:         "config/config.json",
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+				eMocks["telegram"].EXPECT().ValidateParameters(map[string]interface{}{
+					"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+					"chat_id":   float64(-1001103941234),
+					"message":   "Fixed ${LABEL_ALERTNAME}",
+				}).Return(nil)
+			},
+			expectedConfig: func() *Config {
+				return &Config{
+					BlockCacheSize:              104857600,
+					PoolSize:                    100,
+					Runners:                     30,
+					RemoteConfigRefreshInterval: 1 * time.Nanosecond,
+					Rules: []model.Rule{
+						{
+							Name: "LowDiskSpaceFix",
+							Conditions: model.Conditions{
+								AlertStatus:       "firing",
+								AlertLabels:       map[string]string{},
+								AlertLabelsRegexp: map[string]*regexp.Regexp{},
+								AlertAnnotations:  map[string]string{},
+								AlertAnnotationsRegexp: map[string]*regexp.Regexp{
+									"webhooker_enabled": regexp.MustCompile("(.*?)"),
+								},
+							},
+							Actions: model.Actions{
+								{
+									Executor: "telegram",
+									Parameters: map[string]interface{}{
+										"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+										"chat_id":   float64(-1001103941234),
+										"message":   "Fixed ${LABEL_ALERTNAME}",
+									},
+									Block:        10 * time.Minute,
+									TaskExecutor: executorTelegram,
+								},
+							},
+						},
+					},
+				}
+			},
+			expectedErr:  nil,
+			expectedLogs: []string{},
+		},
+		{
+			tcase:              "yaml with integer",
+			configBytes:        yamlConfigTelegramChatIDBytes,
+			configer:           viper.New(),
+			supportedProviders: SupportedProviders,
+			supportedExts:      viper.SupportedExts,
+			configProvider:     ProviderFile,
+			configPath:         "config/config.yaml",
+			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
+				eMocks["telegram"].EXPECT().ValidateParameters(map[string]interface{}{
+					"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+					"chat_id":   -1001103941234,
+					"message":   "Fixed ${LABEL_ALERTNAME}",
+				}).Return(nil)
+			},
+			expectedConfig: func() *Config {
+				return &Config{
+					BlockCacheSize:              104857600,
+					PoolSize:                    100,
+					Runners:                     30,
+					RemoteConfigRefreshInterval: 1 * time.Nanosecond,
+					Rules: []model.Rule{
+						{
+							Name: "LowDiskSpaceFix",
+							Conditions: model.Conditions{
+								AlertStatus:       "firing",
+								AlertLabels:       map[string]string{},
+								AlertLabelsRegexp: map[string]*regexp.Regexp{},
+								AlertAnnotations:  map[string]string{},
+								AlertAnnotationsRegexp: map[string]*regexp.Regexp{
+									"webhooker_enabled": regexp.MustCompile("(.*?)"),
+								},
+							},
+							Actions: model.Actions{
+								{
+									Executor: "telegram",
+									Parameters: map[string]interface{}{
+										"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+										"chat_id":   -1001103941234,
+										"message":   "Fixed ${LABEL_ALERTNAME}",
+									},
+									Block:        10 * time.Minute,
+									TaskExecutor: executorTelegram,
+								},
+							},
+						},
+					},
+				}
+			},
+			expectedErr:  nil,
+			expectedLogs: []string{},
 		},
 	}
 
@@ -494,7 +654,7 @@ func TestNew(t *testing.T) {
 		logger, hook := test.NewNullLogger()
 		logger.Formatter = &logrus.JSONFormatter{DisableTimestamp: true}
 
-		testUnit.expectFunc(configerMock, executorShellMock, executorJenkinsMock, testUnit.configBytes, t)
+		testUnit.expectFunc(configerMock, taskExecutorsMocks, testUnit.configBytes, t)
 		readFileFunc := func(filename string) ([]byte, error) {
 			if testUnit.readFileFuncErr != nil {
 				return nil, testUnit.readFileFuncErr
