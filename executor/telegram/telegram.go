@@ -75,17 +75,23 @@ func (executor taskExecutor) ValidateParameters(parameters map[string]interface{
 		}
 	}
 
-	_, ok := parameters[paramChatID].(int)
-	if !ok {
-		return fmt.Errorf("%v parameter value is not int", paramChatID)
+	if _, ok := parameters[paramChatID].(int); !ok {
+		if _, ok := parameters[paramChatID].(float64); !ok {
+			return fmt.Errorf("%v parameter value is not a number", paramChatID)
+		}
 	}
 
 	return nil
 }
 
 func (executor taskExecutor) NewTask(eventID, rule, alert string, blockTTL time.Duration, preparedParameters map[string]interface{}) executor.Task {
+	chatID, ok := preparedParameters[paramChatID].(int)
+	if !ok {
+		chatID = int(preparedParameters[paramChatID].(float64))
+	}
+
 	task := &task{
-		chatID:  int64(preparedParameters[paramChatID].(int)),
+		chatID:  int64(chatID),
 		message: preparedParameters[paramMessage].(string),
 		telegram: &tgbotapi.BotAPI{
 			Token:  preparedParameters[paramToken].(string),

@@ -64,26 +64,62 @@ func TestTelegramTaskExecutor_NewTask(t *testing.T) {
 
 	executorMock := NewExecutor(&http.Client{})
 
-	testTask := executorMock.NewTask("825e", "testrule1", "testalert1", 1*time.Second,
-		map[string]interface{}{
-			"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
-			"chat_id":   12345678,
-			"message":   "test",
-		},
-	)
+	type testTableData struct {
+		tcase              string
+		preparedParameters map[string]interface{}
+		expected           func() executor.Task
+	}
 
-	expected := &task{
-		chatID:  12345678,
-		message: "test",
-		telegram: &tgbotapi.BotAPI{
-			Token:  "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
-			Buffer: defaultBuffer,
-			Client: &http.Client{},
+	testTable := []testTableData{
+		{
+			tcase: "chat_id int",
+			preparedParameters: map[string]interface{}{
+				"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+				"chat_id":   12345678,
+				"message":   "test",
+			},
+			expected: func() executor.Task {
+				task := &task{
+					chatID:  12345678,
+					message: "test",
+					telegram: &tgbotapi.BotAPI{
+						Token:  "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+						Buffer: defaultBuffer,
+						Client: &http.Client{},
+					},
+				}
+				task.SetBase("825e", "testrule1", "testalert1", 1*time.Second)
+				return task
+			},
+		},
+		{
+			tcase: "chat_id float64",
+			preparedParameters: map[string]interface{}{
+				"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+				"chat_id":   float64(12345678),
+				"message":   "test",
+			},
+			expected: func() executor.Task {
+				task := &task{
+					chatID:  12345678,
+					message: "test",
+					telegram: &tgbotapi.BotAPI{
+						Token:  "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+						Buffer: defaultBuffer,
+						Client: &http.Client{},
+					},
+				}
+				task.SetBase("825e", "testrule1", "testalert1", 1*time.Second)
+				return task
+			},
 		},
 	}
-	expected.SetBase("825e", "testrule1", "testalert1", 1*time.Second)
 
-	assert.Equal(t, expected, testTask)
+	for _, testUnit := range testTable {
+		task := executorMock.NewTask("825e", "testrule1", "testalert1", 1*time.Second, testUnit.preparedParameters)
+
+		assert.Equal(t, testUnit.expected(), task, testUnit.tcase)
+	}
 }
 
 func TestTelegramTaskExecutor_ValidateParameters(t *testing.T) {
@@ -108,6 +144,15 @@ func TestTelegramTaskExecutor_ValidateParameters(t *testing.T) {
 			expected: nil,
 		},
 		{
+			tcase: "correct params chat_id float64",
+			params: map[string]interface{}{
+				"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+				"chat_id":   float64(12345678),
+				"message":   "test",
+			},
+			expected: nil,
+		},
+		{
 			tcase: "param missing",
 			params: map[string]interface{}{
 				"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
@@ -122,7 +167,7 @@ func TestTelegramTaskExecutor_ValidateParameters(t *testing.T) {
 				"chat_id":   "12345678",
 				"message":   "test",
 			},
-			expected: errors.New("chat_id parameter value is not int"),
+			expected: errors.New("chat_id parameter value is not a number"),
 		},
 	}
 
