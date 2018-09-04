@@ -34,38 +34,38 @@ func (m *Mockblocker) EXPECT() *MockblockerMockRecorder {
 }
 
 // BlockInProgress mocks base method
-func (m *Mockblocker) BlockInProgress(fingerprint string) (bool, error) {
-	ret := m.ctrl.Call(m, "BlockInProgress", fingerprint)
+func (m *Mockblocker) BlockInProgress(executor, fingerprint string) (bool, error) {
+	ret := m.ctrl.Call(m, "BlockInProgress", executor, fingerprint)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // BlockInProgress indicates an expected call of BlockInProgress
-func (mr *MockblockerMockRecorder) BlockInProgress(fingerprint interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockInProgress", reflect.TypeOf((*Mockblocker)(nil).BlockInProgress), fingerprint)
+func (mr *MockblockerMockRecorder) BlockInProgress(executor, fingerprint interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockInProgress", reflect.TypeOf((*Mockblocker)(nil).BlockInProgress), executor, fingerprint)
 }
 
 // BlockForTTL mocks base method
-func (m *Mockblocker) BlockForTTL(fingerprint string, ttl time.Duration) error {
-	ret := m.ctrl.Call(m, "BlockForTTL", fingerprint, ttl)
+func (m *Mockblocker) BlockForTTL(executor, fingerprint string, ttl time.Duration) error {
+	ret := m.ctrl.Call(m, "BlockForTTL", executor, fingerprint, ttl)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // BlockForTTL indicates an expected call of BlockForTTL
-func (mr *MockblockerMockRecorder) BlockForTTL(fingerprint, ttl interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockForTTL", reflect.TypeOf((*Mockblocker)(nil).BlockForTTL), fingerprint, ttl)
+func (mr *MockblockerMockRecorder) BlockForTTL(executor, fingerprint, ttl interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockForTTL", reflect.TypeOf((*Mockblocker)(nil).BlockForTTL), executor, fingerprint, ttl)
 }
 
 // Unblock mocks base method
-func (m *Mockblocker) Unblock(fingerprint string) {
-	m.ctrl.Call(m, "Unblock", fingerprint)
+func (m *Mockblocker) Unblock(executor, fingerprint string) {
+	m.ctrl.Call(m, "Unblock", executor, fingerprint)
 }
 
 // Unblock indicates an expected call of Unblock
-func (mr *MockblockerMockRecorder) Unblock(fingerprint interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unblock", reflect.TypeOf((*Mockblocker)(nil).Unblock), fingerprint)
+func (mr *MockblockerMockRecorder) Unblock(executor, fingerprint interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unblock", reflect.TypeOf((*Mockblocker)(nil).Unblock), executor, fingerprint)
 }
 
 // Mockmetricser is a mock of metricser interface

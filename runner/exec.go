@@ -36,7 +36,7 @@ func exec(task executor.Task, blocker blocker, logger *logrus.Logger) (execResul
 		return execResultSuccessWithoutBlock, nil
 	}
 
-	success, err := blocker.BlockInProgress(task.Fingerprint())
+	success, err := blocker.BlockInProgress(task.ExecutorName(), task.Fingerprint())
 	if err != nil {
 		return execResultBlockError, err
 	}
@@ -47,11 +47,11 @@ func exec(task executor.Task, blocker blocker, logger *logrus.Logger) (execResul
 
 	err = task.Exec(logger)
 	if err != nil {
-		blocker.Unblock(task.Fingerprint())
+		blocker.Unblock(task.ExecutorName(), task.Fingerprint())
 		return execResultExecError, err
 	}
 
-	err = blocker.BlockForTTL(task.Fingerprint(), task.BlockTTL())
+	err = blocker.BlockForTTL(task.ExecutorName(), task.Fingerprint(), task.BlockTTL())
 	if err != nil {
 		return execResultCanNotBlock, err
 	}
