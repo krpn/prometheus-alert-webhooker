@@ -662,7 +662,7 @@ func TestRefresh(t *testing.T) {
 			expectedErr:     nil,
 		},
 		{
-			tcase: "refreshed common params amd refresh interval",
+			tcase: "refreshed common params",
 			config: func() *Config {
 				config := getExpectedConfigCompiled(taskExecutors)
 				config.CommonParameters = map[string]map[string]interface{}{
@@ -689,7 +689,6 @@ func TestRefresh(t *testing.T) {
 			},
 			newConfig: func() *Config {
 				config := getExpectedConfigUncompiled()
-				config.RemoteConfigRefreshInterval = 1 * time.Hour
 				config.CommonParameters = map[string]map[string]interface{}{
 					"some_parameters_2": {
 						"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
@@ -705,7 +704,6 @@ func TestRefresh(t *testing.T) {
 			},
 			expectedConfig: func() *Config {
 				config := getExpectedConfigCompiled(taskExecutors)
-				config.RemoteConfigRefreshInterval = 1 * time.Hour
 				config.CommonParameters = map[string]map[string]interface{}{
 					"some_parameters_2": {
 						"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
@@ -719,6 +717,35 @@ func TestRefresh(t *testing.T) {
 				}
 				rule.Actions[0] = action
 				config.Rules = model.Rules{rule}
+				return config
+			},
+			expectedChanged: true,
+			expectedErr:     nil,
+		},
+		{
+			tcase: "refresh interval changed",
+			config: func() *Config {
+				config := getExpectedConfigCompiled(taskExecutors)
+				config.Rules = model.Rules{config.Rules[0]}
+				return config
+			},
+			expectFunc: func(c *Mockconfiger, e *executor.MockTaskExecutor, ec *Config) {
+				c.EXPECT().WatchRemoteConfig().Return(nil)
+				c.EXPECT().Unmarshal(&Config{}).SetArg(0, *ec).Return(nil)
+				e.EXPECT().ValidateParameters(map[string]interface{}{
+					"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
+				}).Return(nil)
+			},
+			newConfig: func() *Config {
+				config := getExpectedConfigUncompiled()
+				config.Rules = model.Rules{config.Rules[0]}
+				config.RemoteConfigRefreshInterval = 1 * time.Hour
+				return config
+			},
+			expectedConfig: func() *Config {
+				config := getExpectedConfigCompiled(taskExecutors)
+				config.Rules = model.Rules{config.Rules[0]}
+				config.RemoteConfigRefreshInterval = 1 * time.Hour
 				return config
 			},
 			expectedChanged: true,

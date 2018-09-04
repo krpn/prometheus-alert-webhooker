@@ -176,10 +176,22 @@ func refresh(currConfig *Config, configer configer, taskExecutors map[string]exe
 		return
 	}
 
-	if !reflect.DeepEqual(newConfig, currConfig) {
-		err = copier.Copy(currConfig, newConfig)
+	if !reflect.DeepEqual(newConfig.Rules, currConfig.Rules) {
+		// we can't replace config completely because handler and runners depends on rules pointer
+		err = copier.Copy(&currConfig.Rules, &newConfig.Rules)
 		changed = true
 	}
+
+	if !reflect.DeepEqual(currConfig.CommonParameters, newConfig.CommonParameters) {
+		currConfig.CommonParameters = newConfig.CommonParameters
+		changed = true
+	}
+
+	if currConfig.RemoteConfigRefreshInterval != newConfig.RemoteConfigRefreshInterval {
+		currConfig.RemoteConfigRefreshInterval = newConfig.RemoteConfigRefreshInterval
+		changed = true
+	}
+
 	return
 }
 
