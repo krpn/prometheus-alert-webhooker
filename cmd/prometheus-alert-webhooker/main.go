@@ -45,9 +45,7 @@ func main() {
 	logger := logrus.New()
 	logger.Formatter = &logrus.JSONFormatter{}
 	if *verbose {
-		logger.SetLevel(logrus.InfoLevel)
-	} else {
-		logger.SetLevel(logrus.WarnLevel)
+		logger.SetLevel(logrus.DebugLevel)
 	}
 
 	ctxLogger := logger.WithFields(logrus.Fields{
@@ -59,7 +57,7 @@ func main() {
 		},
 	})
 
-	ctxLogger.Info("starting up service, prepare config")
+	ctxLogger.Debug("starting up service, prepare config")
 
 	config, err := cfg.New(
 		ioutil.ReadFile,
@@ -77,7 +75,7 @@ func main() {
 	}
 
 	ctxLogger = ctxLogger.WithField("config", config)
-	ctxLogger.Info("config prepared")
+	ctxLogger.Debug("config prepared")
 
 	var (
 		tasksCh = make(chan model.Tasks, config.PoolSize)
@@ -86,11 +84,11 @@ func main() {
 	)
 
 	// runner
-	ctxLogger.Info("starting up runners")
+	ctxLogger.Debug("starting up runners")
 	go runner.Start(config.Runners, tasksCh, blocker, metric, logger, time.Now)
 
 	// HTTP
-	ctxLogger.Info("starting up wehbook")
+	ctxLogger.Debug("starting up wehbook")
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/webhooker", func(w http.ResponseWriter, r *http.Request) {
 		webhook.Webhook(r, config.Rules, tasksCh, metric, logger, time.Now)

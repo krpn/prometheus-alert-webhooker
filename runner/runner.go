@@ -32,13 +32,13 @@ func runner(tasksCh chan model.Tasks, blocker blocker, metric metricser, logger 
 
 	for tasks := range tasksCh {
 		tasksLogger := ctxLogger.WithField("tasks", tasks.Details())
-		tasksLogger.Info("runner starts executing group")
+		tasksLogger.Debug("runner starts executing group")
 
 		tasksQty := len(tasks)
 		for i, task := range tasks {
 			taskNum := i + 1
 			taskLogger := tasksLogger.WithFields(executor.TaskDetails(task))
-			taskLogger.Infof("runner starts executing task #%v/%v", taskNum, tasksQty)
+			taskLogger.Debugf("runner starts executing task #%v/%v", taskNum, tasksQty)
 
 			start = nowFunc()
 			result, err = exec(task, blocker, logger)
@@ -47,19 +47,19 @@ func runner(tasksCh chan model.Tasks, blocker blocker, metric metricser, logger 
 
 			taskLogger = taskLogger.WithFields(logrus.Fields{"result": result.String(), "duration": duration.String()})
 			if err == nil {
-				taskLogger.Infof("runner finished executing task #%v/%v", taskNum, tasksQty)
+				taskLogger.Debugf("runner finished executing task #%v/%v", taskNum, tasksQty)
 			} else {
 				taskLogger.Errorf("runner got executing task #%v/%v error, stopping group: %v", taskNum, tasksQty, err)
 				break
 			}
 
 			if !utils.StringSliceContains(successfulResults, string(result)) {
-				taskLogger.Infof("runner got executing task #%v/%v unsuccessful result, stopping group: %v", taskNum, tasksQty, result)
+				taskLogger.Debugf("runner got executing task #%v/%v unsuccessful result, stopping group: %v", taskNum, tasksQty, result)
 				break
 			}
 		}
 
-		tasksLogger.Info("runner finished executing group")
+		tasksLogger.Debug("runner finished executing group")
 	}
 }
 

@@ -129,14 +129,13 @@ func refreshDaemon(config *Config, provider, path string, configer configer, log
 
 	var (
 		changed bool
-		result  string
 		err     error
 	)
 	for {
 		time.Sleep(config.RemoteConfigRefreshInterval)
 
 		ctxLogger = ctxLogger.WithField("iteration", i)
-		ctxLogger.Info("starts refreshing config")
+		ctxLogger.Debug("starts refreshing config")
 
 		changed, err = refresh(config, configer, taskExecutors)
 
@@ -144,11 +143,11 @@ func refreshDaemon(config *Config, provider, path string, configer configer, log
 		if err != nil {
 			ctxLogger.Errorf("config refresh error: %v", err)
 		} else {
-			result = "no changes"
 			if changed {
-				result = "config changed"
+				ctxLogger.Info("successfully done refreshing config: config changed")
+			} else {
+				ctxLogger.Debug("successfully done refreshing config: no changes")
 			}
-			ctxLogger.Infof("successfully done refreshing config: %v", result)
 		}
 
 		if refreshIterations > 0 && i >= refreshIterations {

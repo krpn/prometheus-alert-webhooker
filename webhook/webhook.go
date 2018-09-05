@@ -34,26 +34,26 @@ func Webhook(req *http.Request, rules model.Rules, tasksCh chan model.Tasks, met
 		},
 	)
 	if len(tasksGroups) == 0 {
-		payloadLogger.Info("payload is received, no tasks for it")
+		payloadLogger.Debug("payload is received, no tasks for it")
 		return
 	}
 
-	payloadLogger.Info("payload is received, tasks are prepared")
+	payloadLogger.Debug("payload is received, tasks are prepared")
 
 	for _, tasks := range tasksGroups {
 		tasksLogger := ctxLogger.WithField("tasks", tasks.Details())
-		tasksLogger.Info("ready to send tasks to runner")
+		tasksLogger.Debug("ready to send tasks to runner")
 
 		tasksCh <- tasks
 
-		tasksLogger.Info("sent tasks to runner")
+		tasksLogger.Debug("sent tasks to runner")
 
 		for _, task := range tasks {
 			metric.IncomeTaskInc(task.Rule(), task.Alert(), task.ExecutorName())
 		}
 	}
 
-	payloadLogger.Info("all tasks sent to runners")
+	payloadLogger.Debug("all tasks sent to runners")
 }
 
 func getEventID(nowFunc func() time.Time) string {
