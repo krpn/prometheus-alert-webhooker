@@ -20,6 +20,21 @@ jobs:
         - go test -v -covermode=count -coverprofile=coverage.out ./...
         - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
 
+    - stage: Code Check
+      name: SonarQube Scanner
+      addons:
+        sonarcloud:
+          organization: "krpn-github"
+          token:
+            secure: $SONAR_TOKEN
+      install:
+      - curl https://git.io/vp6lP | sh
+      script:
+      - $GOPATH/bin/gometalinter.v2 ./... > gometalinter-report.out || true
+      - go test ./... -json > report.json
+      - go test ./... -coverprofile=coverage.out
+      - sonar-scanner
+
     - stage: Build
       name: Container Build
       if: branch = master

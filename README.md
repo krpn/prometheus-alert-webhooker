@@ -204,13 +204,13 @@ Executors and it parameters described below.
 
 Usage: `prometheus-alert-webhooker [<flags>]`
 
-| Option            | Type     | Description                                                                | Default              |
-|-------------------|:--------:|----------------------------------------------------------------------------|----------------------|
-| `-p` `--provider` | `string` | Config provider: file, etcd, consul                                        | `file`               |
-| `-c` `--config`   | `string` | Path to config file with extension, can be link for etcd, consul providers | `config/config.yaml` |
-| `-l` `--listen`   | `string` | HTTP port to listen on                                                     | `:8080`              |
-| `-v` `--verbose`  |          | Enable verbose logging                                                     |                      |
-| `--help`          |          | Show help                                                                  |                      |
+| Flag                 | Type     | Description                                                                | Default              |
+|----------------------|:--------:|----------------------------------------------------------------------------|----------------------|
+| `-p` or `--provider` | `string` | Config provider: file, etcd, consul                                        | `file`               |
+| `-c` or `--config`   | `string` | Path to config file with extension, can be link for etcd, consul providers | `config/config.yaml` |
+| `-l` or `--listen`   | `string` | HTTP port to listen on                                                     | `:8080`              |
+| `-v` or `--verbose`  |          | Enable verbose logging                                                     |                      |
+| `--help`             |          | Show help                                                                  |                      |
 
 [(back to top)](#prometheus-alert-webhooker)
 
