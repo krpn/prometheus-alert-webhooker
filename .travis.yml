@@ -9,17 +9,6 @@ go:
 jobs:
   include:
 
-    - stage: Tests
-      name: Unit Tests
-      before_install:
-        - go get github.com/mattn/goveralls
-      install:
-        - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-        - dep ensure -v
-      script:
-        - go test -v -covermode=count -coverprofile=coverage.out ./...
-        - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
-
     - stage: Code Check
       name: SonarQube Scanner
       addons:
