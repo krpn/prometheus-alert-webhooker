@@ -196,7 +196,7 @@ Executors and it parameters described below.
 |-----------|:--------:|----------------------------------------------------|--------------------------------------------------------|
 | bot_token | `string` | Bot token from [BotFather](https://t.me/BotFather) | `bot_token: 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` |
 | chat_id   | `int`    | Chat ID for send notifications to                  | `chat_id: -1001103941234`                              |
-| message   | `string` | Message for send                                    | `message: Fixed ${LABEL_ALERTNAME}`                    |
+| message   | `string` | Message for send                                    | `message: Fixed ${LABEL_ALERTNAME}`                   |
 
 [(back to top)](#prometheus-alert-webhooker)
 

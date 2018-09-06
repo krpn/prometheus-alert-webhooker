@@ -28,12 +28,14 @@ jobs:
           token:
             secure: $SONAR_TOKEN
       install:
-      - curl https://git.io/vp6lP | sh
+        - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+        - dep ensure -v
+        - curl https://git.io/vp6lP | sh
       script:
-      - $GOPATH/bin/gometalinter.v2 ./... > gometalinter-report.out || true
-      - go test ./... -json > report.json
-      - go test ./... -coverprofile=coverage.out
-      - sonar-scanner
+        - $GOPATH/bin/gometalinter.v2 ./... > gometalinter-report.out || true
+        - go test ./... -json > report.json
+        - go test ./... -coverprofile=coverage.out
+        - sonar-scanner
 
     - stage: Build
       name: Container Build
