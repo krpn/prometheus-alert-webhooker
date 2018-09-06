@@ -37,6 +37,9 @@ jobs:
         - go test ./... -json > report.json
         - go test ./... -coverprofile=coverage.out
         - sonar-scanner
+      cache:
+        directories:
+        - '$HOME/.sonar/cache'
 
     - stage: Build
       name: Container Build
