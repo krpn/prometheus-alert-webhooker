@@ -72,7 +72,7 @@ func (a alert) Name() string {
 // Alerts  is a slice of Alert.
 type Alerts []alert
 
-// ToTasks converts alerts to tasks.
+// ToTasksGroups converts alerts to tasks.
 func (alerts Alerts) ToTasksGroups(rules Rules, eventID string) (tasksGroups TasksGroups) {
 	tasksGroups = make(TasksGroups, 0)
 

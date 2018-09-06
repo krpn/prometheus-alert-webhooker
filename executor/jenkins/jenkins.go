@@ -196,10 +196,8 @@ func (executor taskExecutor) NewTask(eventID, rule, alert string, blockTTL time.
 	}
 
 	task.secureInterationsLimit = defaultSecureInterationsLimit
-	if limit, ok := preparedParameters[paramSecureInterationsLimit].(int); ok {
-		if limit > 0 {
-			task.secureInterationsLimit = limit
-		}
+	if limit, ok := preparedParameters[paramSecureInterationsLimit].(int); ok && limit > 0 {
+		task.secureInterationsLimit = limit
 	}
 
 	task.secureBuildDelay = defaultSecureBuildDelay

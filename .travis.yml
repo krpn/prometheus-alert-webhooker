@@ -33,7 +33,7 @@ jobs:
         - go get -u gopkg.in/alecthomas/gometalinter.v2
         - $GOPATH/bin/gometalinter.v2 --install
       script:
-        - $GOPATH/bin/gometalinter.v2 ./... > gometalinter-report.out || true
+        - $GOPATH/bin/gometalinter.v2 ./... --vendor --deadline=10m > gometalinter-report.out || true
         - go test ./... -json > report.json
         - go test ./... -coverprofile=coverage.out
         - sonar-scanner

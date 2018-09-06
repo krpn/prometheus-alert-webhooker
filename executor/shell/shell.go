@@ -39,7 +39,7 @@ type taskExecutor struct {
 }
 
 // NewExecutor creates TaskExecutor for shell tasks.
-func NewExecutor(execFunc func(name string, arg ...string) *exec.Cmd) executor.TaskExecutor {
+func NewExecutor(execFunc func(string, ...string) *exec.Cmd) executor.TaskExecutor {
 	return taskExecutor{execFunc: execFunc}
 }
 

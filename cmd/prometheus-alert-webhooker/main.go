@@ -90,7 +90,7 @@ func main() {
 	// HTTP
 	ctxLogger.Debug("starting up wehbook")
 	http.Handle("/metrics", promhttp.Handler())
-	http.HandleFunc("/webhooker", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/webhooker", func(_ http.ResponseWriter, r *http.Request) {
 		webhook.Webhook(r, config.Rules, tasksCh, metric, logger, time.Now)
 	})
 	ctxLogger.Fatalf("http server startup error: %v", http.ListenAndServe(*listenAddr, nil))

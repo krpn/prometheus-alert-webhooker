@@ -42,7 +42,7 @@ var SupportedProviders = append(viper.SupportedRemoteProviders, ProviderFile)
 
 // New creates Config instance.
 func New(
-	readFileFunc func(filename string) ([]byte, error),
+	readFileFunc func(string) ([]byte, error),
 	configer configer,
 	supportedProviders, supportedExts []string,
 	provider, rawPath string,
