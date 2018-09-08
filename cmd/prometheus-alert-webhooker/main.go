@@ -6,6 +6,7 @@ import (
 	blc "github.com/krpn/prometheus-alert-webhooker/blocker"
 	cfg "github.com/krpn/prometheus-alert-webhooker/config"
 	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/krpn/prometheus-alert-webhooker/executor/http"
 	"github.com/krpn/prometheus-alert-webhooker/executor/jenkins"
 	"github.com/krpn/prometheus-alert-webhooker/executor/shell"
 	"github.com/krpn/prometheus-alert-webhooker/executor/telegram"
@@ -33,6 +34,9 @@ var (
 		"shell":    shell.NewExecutor(exec.Command),
 		"jenkins":  jenkins.NewExecutor(),
 		"telegram": telegram.NewExecutor(&http.Client{}),
+		"http": httpe.NewExecutor(func(timeout time.Duration) httpe.Doer {
+			return &http.Client{Timeout: timeout}
+		}),
 	}
 )
 

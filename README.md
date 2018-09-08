@@ -149,6 +149,7 @@ rules:
     #   ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} - instance without port
     #   ${URLENCODE_ANNOTATIONS_SUMMARY} - urlencoded value from annotation "summary"
     #   ${JSON_ESCAPE_ANNOTATIONS_DESCRIPTION} - JSON escaped value from annotation "description"
+    # (!) all unexpected parameters will be ignored
     parameters:
       <parameter_1>: <parameter_1_value>
       <parameter_n>: <parameter_n_value>

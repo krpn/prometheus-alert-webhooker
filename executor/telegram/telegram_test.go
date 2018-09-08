@@ -153,7 +153,7 @@ func TestTelegramTaskExecutor_ValidateParameters(t *testing.T) {
 			expected: nil,
 		},
 		{
-			tcase: "param missing",
+			tcase: "param chat_id missing",
 			params: map[string]interface{}{
 				"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
 				"message":   "test",
@@ -161,13 +161,30 @@ func TestTelegramTaskExecutor_ValidateParameters(t *testing.T) {
 			expected: errors.New("required parameter chat_id is missing"),
 		},
 		{
-			tcase: "param wrong type",
+			tcase: "param chat_id wrong type",
 			params: map[string]interface{}{
 				"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
 				"chat_id":   "12345678",
 				"message":   "test",
 			},
 			expected: errors.New("chat_id parameter value is not a number"),
+		},
+		{
+			tcase: "param bot_token missing",
+			params: map[string]interface{}{
+				"chat_id": 12345678,
+				"message": "test",
+			},
+			expected: errors.New("required parameter bot_token is missing"),
+		},
+		{
+			tcase: "param bot_token wrong type",
+			params: map[string]interface{}{
+				"bot_token": 123,
+				"chat_id":   12345678,
+				"message":   "test",
+			},
+			expected: errors.New("bot_token parameter value is not a string"),
 		},
 	}
 

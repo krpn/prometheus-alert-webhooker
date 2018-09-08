@@ -21,7 +21,6 @@ const (
 
 var requiredStringParameters = []string{
 	paramToken,
-	paramChatID,
 	paramMessage,
 }
 
@@ -69,10 +68,19 @@ func NewExecutor(client *http.Client) executor.TaskExecutor {
 
 func (executor taskExecutor) ValidateParameters(parameters map[string]interface{}) error {
 	for _, reqParam := range requiredStringParameters {
-		_, ok := parameters[reqParam]
+		param, ok := parameters[reqParam]
 		if !ok {
 			return fmt.Errorf("required parameter %v is missing", reqParam)
 		}
+
+		if _, ok := param.(string); !ok {
+			return fmt.Errorf("%v parameter value is not a string", reqParam)
+		}
+	}
+
+	_, ok := parameters[paramChatID]
+	if !ok {
+		return fmt.Errorf("required parameter %v is missing", paramChatID)
 	}
 
 	if _, ok := parameters[paramChatID].(int); !ok {
