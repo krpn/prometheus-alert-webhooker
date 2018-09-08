@@ -51,7 +51,7 @@ func (executor taskExecutor) ValidateParameters(parameters map[string]interface{
 
 	_, ok = command.(string)
 	if !ok {
-		return errors.New("command parameter value is not string")
+		return errors.New("command parameter value is not a string")
 	}
 
 	return nil

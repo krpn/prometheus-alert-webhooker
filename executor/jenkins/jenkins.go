@@ -185,7 +185,17 @@ func (executor taskExecutor) ValidateParameters(parameters map[string]interface{
 		}
 		_, ok = parameters[reqParam].(string)
 		if !ok {
-			return fmt.Errorf("%v parameter value is not string", reqParam)
+			return fmt.Errorf("%v parameter value is not a string", reqParam)
+		}
+	}
+
+	for key, val := range parameters {
+		if !strings.HasPrefix(key, paramParameterPrefix) {
+			continue
+		}
+
+		if _, ok := val.(string); !ok {
+			return fmt.Errorf("%v parameter value is not a string", key)
 		}
 	}
 
@@ -219,7 +229,7 @@ func (executor taskExecutor) NewTask(eventID, rule, alert string, blockTTL time.
 			continue
 		}
 		if strings.HasPrefix(key, paramParameterPrefix) {
-			parameters[strings.TrimSpace(strings.Replace(key, paramParameterPrefix, "", -1))] = valStr
+			parameters[strings.TrimSpace(strings.Replace(key, paramParameterPrefix, "", 1))] = valStr
 		}
 	}
 	task.parameters = parameters

@@ -115,7 +115,18 @@ func TestJenkinsTaskExecutor_ValidateParameters(t *testing.T) {
 				"login":    123,
 				"password": "qwerty123",
 			},
-			expected: errors.New("login parameter value is not string"),
+			expected: errors.New("login parameter value is not a string"),
+		},
+		{
+			tcase: "param wrong type",
+			params: map[string]interface{}{
+				"endpoint":            "http://jenkins.company.com/",
+				"job":                 "SomeJob",
+				"login":               "admin",
+				"password":            "qwerty123",
+				"job parameter wrong": 123,
+			},
+			expected: errors.New("job parameter wrong parameter value is not a string"),
 		},
 	}
 
@@ -145,13 +156,14 @@ func TestJenkinsTaskExecutor_NewTask(t *testing.T) {
 			alert:    "testalert1",
 			blockTTL: 1 * time.Second,
 			preparedParameters: map[string]interface{}{
-				"endpoint":                 "http://jenkins.company.com/",
-				"job":                      "SomeJob",
-				"login":                    "admin",
-				"password":                 "qwerty123",
-				"state_refresh_delay":      "1m",
-				"secure_interations_limit": 666,
-				"job parameter test":       "test1",
+				"endpoint":                              "http://jenkins.company.com/",
+				"job":                                   "SomeJob",
+				"login":                                 "admin",
+				"password":                              "qwerty123",
+				"state_refresh_delay":                   "1m",
+				"secure_interations_limit":              666,
+				"job parameter test":                    "test1",
+				"job parameter test job parameter test": "test2",
 			},
 			expected: func() executor.Task {
 				task := &task{
@@ -166,7 +178,10 @@ func TestJenkinsTaskExecutor_NewTask(t *testing.T) {
 				task.stateRefreshDelay = 1 * time.Minute
 				task.secureInterationsLimit = 666
 				task.secureBuildDelay = defaultSecureBuildDelay
-				task.parameters = map[string]string{"test": "test1"}
+				task.parameters = map[string]string{
+					"test":                    "test1",
+					"test job parameter test": "test2",
+				}
 				task.SetBase("825e", "testrule1", "testalert1", 1*time.Second)
 				return task
 			},

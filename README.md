@@ -11,6 +11,7 @@ prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://pr
 * [Executors](#executors)
     * [Executor `jenkins`](#executor-jenkins)
     * [Executor `shell`](#executor-shell)
+    * [Executor `http`](#executor-http)
     * [Executor `telegram`](#executor-telegram)
 * [Command-Line Flags](#command-line-flags)
 * [Exposed Prometheus Metrics](#exposed-prometheus-metrics)
@@ -149,6 +150,7 @@ rules:
     #   ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} - instance without port
     #   ${URLENCODE_ANNOTATIONS_SUMMARY} - urlencoded value from annotation "summary"
     #   ${JSON_ESCAPE_ANNOTATIONS_DESCRIPTION} - JSON escaped value from annotation "description"
+    # (!) all unexpected parameters will be ignored
     parameters:
       <parameter_1>: <parameter_1_value>
       <parameter_n>: <parameter_n_value>
@@ -190,6 +192,19 @@ Executors and it parameters described below.
 |-----------|:----------:|---------------------|---------------------------------------|
 | command   | `string`   | Command for execute | `command: ./clean.sh ${LABEL_FOLDER}` |
 
+## Executor `http`
+
+`http` is used for making HTTP requests.
+
+| Parameter            | Type       | Description                                                                                  | Example                                                    |
+|----------------------|:----------:|----------------------------------------------------------------------------------------------|------------------------------------------------------------|
+| url                  | `string`   | Request URL                                                                                  | `url: https://www.example.com/`                            |
+| method               | `string`   | (optional, default: GET) Request method                                                      | `method: POST`                                             |
+| body                 | `string`   | (optional) Request body                                                                      | `body: {"data": "${JSON_ESCAPE_ANNOTATIONS_DESCRIPTION}"}` |
+| header <header_name> | `string`   | (optional) Sets header <header_name>                                                         | `header Authorization: ba0828c9fac6b0b47d9147963429d091`   |
+| timeout              | `duration` | (optional, default: 1s) Request timeout                                                      | `timeout: 100ms`                                           |
+| success_http_status  | `integer`  | (optional, default: 200) Success response status code, will be checked after request execute | `success_http_status: 201`                                 |
+
 ## Executor `telegram`
 
 `telegram` is used for handy notifications about webhooker events.
@@ -198,7 +213,7 @@ Executors and it parameters described below.
 |-----------|:--------:|----------------------------------------------------|--------------------------------------------------------|
 | bot_token | `string` | Bot token from [BotFather](https://t.me/BotFather) | `bot_token: 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` |
 | chat_id   | `int`    | Chat ID for send notifications to                  | `chat_id: -1001103941234`                              |
-| message   | `string` | Message for send                                    | `message: Fixed ${LABEL_ALERTNAME}`                   |
+| message   | `string` | Message for send                                   | `message: Fixed ${LABEL_ALERTNAME}`                    |
 
 [(back to top)](#prometheus-alert-webhooker)
 
