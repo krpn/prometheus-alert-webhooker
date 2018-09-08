@@ -88,7 +88,7 @@ func TestRule_validateUncompiled(t *testing.T) {
 				}
 				return rule
 			},
-			expected: errRuleValidateEmptyAlertLabelName,
+			expected: errors.New("alert label validation error: key is empty"),
 		},
 		{
 			tcase: "empty alert label value",
@@ -102,7 +102,7 @@ func TestRule_validateUncompiled(t *testing.T) {
 				}
 				return rule
 			},
-			expected: errRuleValidateEmptyAlertLabelValue,
+			expected: errors.New("alert label validation error: value for key a is empty"),
 		},
 		{
 			tcase: "empty annotation label name",
@@ -116,7 +116,7 @@ func TestRule_validateUncompiled(t *testing.T) {
 				}
 				return rule
 			},
-			expected: errRuleValidateEmptyAnnotationLabelName,
+			expected: errors.New("alert annotation validation error: key is empty"),
 		},
 		{
 			tcase: "empty annotation label value",
@@ -130,7 +130,7 @@ func TestRule_validateUncompiled(t *testing.T) {
 				}
 				return rule
 			},
-			expected: errRuleValidateEmptyAnnotationLabelValue,
+			expected: errors.New("alert annotation validation error: value for key a is empty"),
 		},
 	}
 
@@ -393,7 +393,7 @@ func TestRules_Prepare(t *testing.T) {
 				}
 				return r
 			},
-			expectedErr: errRuleValidateEmptyAlertLabelName,
+			expectedErr: errors.New("alert label validation error: key is empty"),
 		},
 		{
 			tcase: "empty alert status",

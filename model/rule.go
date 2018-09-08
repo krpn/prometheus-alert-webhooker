@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/krpn/prometheus-alert-webhooker/utils"
 	"github.com/prometheus/common/model"
 	"regexp"
 	"strings"
@@ -43,17 +44,13 @@ type Conditions struct {
 type Rules []Rule
 
 var (
-	errRulesValidateEmptyRules               = errors.New("empty rules list")
-	errRuleValidateEmptyName                 = errors.New("empty rule name")
-	errRuleValidateInvalidAlertStatus        = errors.New("invalid alert status: should be firing or resolved")
-	errRuleValidateEmptyAlertLabelName       = errors.New("empty alert label name")
-	errRuleValidateEmptyAlertLabelValue      = errors.New("empty alert label value")
-	errRuleValidateEmptyAnnotationLabelName  = errors.New("empty alert annotation name")
-	errRuleValidateEmptyAnnotationLabelValue = errors.New("empty alert annotation value")
-	errRuleValidateEmptyExecutors            = errors.New("empty executors")
-	errRuleValidateEmptyExecutor             = errors.New("empty executor")
-	errRuleValidateEmptyActions              = errors.New("empty actions")
-	errRuleValidateAlreadyCompiled           = errors.New("rules already compiled")
+	errRulesValidateEmptyRules        = errors.New("empty rules list")
+	errRuleValidateEmptyName          = errors.New("empty rule name")
+	errRuleValidateInvalidAlertStatus = errors.New("invalid alert status: should be firing or resolved")
+	errRuleValidateEmptyExecutors     = errors.New("empty executors")
+	errRuleValidateEmptyExecutor      = errors.New("empty executor")
+	errRuleValidateEmptyActions       = errors.New("empty actions")
+	errRuleValidateAlreadyCompiled    = errors.New("rules already compiled")
 )
 
 func (rule Rule) validateUncompiled() error {
@@ -74,24 +71,14 @@ func (rule Rule) validateUncompiled() error {
 		return errRuleValidateAlreadyCompiled
 	}
 
-	for label, value := range rule.Conditions.AlertLabels {
-		if len(label) == 0 {
-			return errRuleValidateEmptyAlertLabelName
-		}
-
-		if len(value) == 0 {
-			return errRuleValidateEmptyAlertLabelValue
-		}
+	err = utils.CheckMapIsNotEmpty(rule.Conditions.AlertLabels)
+	if err != nil {
+		return fmt.Errorf("alert label validation error: %v", err)
 	}
 
-	for annotation, value := range rule.Conditions.AlertAnnotations {
-		if len(annotation) == 0 {
-			return errRuleValidateEmptyAnnotationLabelName
-		}
-
-		if len(value) == 0 {
-			return errRuleValidateEmptyAnnotationLabelValue
-		}
+	err = utils.CheckMapIsNotEmpty(rule.Conditions.AlertAnnotations)
+	if err != nil {
+		return fmt.Errorf("alert annotation validation error: %v", err)
 	}
 
 	return nil
