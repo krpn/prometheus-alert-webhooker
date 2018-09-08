@@ -123,40 +123,39 @@ func TestStart(t *testing.T) {
 					tasks: []*executor.MockTask{executor.NewMockTask(ctrl), executor.NewMockTask(ctrl), executor.NewMockTask(ctrl)},
 					expectFunc: func(ts []*executor.MockTask, b *Mockblocker, m *Mockmetricser, l *logrus.Logger) {
 						shift := 6
-						for i, t := range ts {
-							if i == 2 {
-								t.EXPECT().EventID().Return(fmt.Sprintf("testid%v", i+shift)).Times(1)
-								t.EXPECT().Rule().Return(fmt.Sprintf("testrule%v", i+shift)).Times(1)
-								t.EXPECT().Alert().Return(fmt.Sprintf("testalert%v", i+shift)).Times(1)
-								t.EXPECT().ExecutorName().Return("shell").Times(1)
-								t.EXPECT().ExecutorDetails().Return(fmt.Sprintf("testtask%v", i+shift)).Times(1)
-								continue
-							}
 
-							var result execResult
-							if i == 0 {
-								t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
-								t.EXPECT().Fingerprint().Return(fmt.Sprintf("testfp%v", i+shift)).Times(2)
-								t.EXPECT().ExecutorName().Return("shell").Times(2)
-								b.EXPECT().BlockInProgress("shell", fmt.Sprintf("testfp%v", i+shift)).Return(true, nil)
-								t.EXPECT().Exec(l).Return(nil)
-								result = execResultSuccess
-								b.EXPECT().BlockForTTL("shell", fmt.Sprintf("testfp%v", i+shift), 10*time.Minute).Return(nil)
-							}
-							if i == 1 {
-								t.EXPECT().BlockTTL().Return(10 * time.Minute).Times(1)
-								t.EXPECT().Fingerprint().Return(fmt.Sprintf("testfp%v", i+shift))
-								t.EXPECT().ExecutorName().Return("shell")
-								b.EXPECT().BlockInProgress("shell", fmt.Sprintf("testfp%v", i+shift)).Return(false, nil)
-								result = execResultInBlock
-							}
-							t.EXPECT().EventID().Return(fmt.Sprintf("testid%v", i+shift)).Times(2)
-							t.EXPECT().Rule().Return(fmt.Sprintf("testrule%v", i+shift)).Times(3)
-							t.EXPECT().Alert().Return(fmt.Sprintf("testalert%v", i+shift)).Times(3)
-							t.EXPECT().ExecutorName().Return("shell").Times(3)
-							t.EXPECT().ExecutorDetails().Return(fmt.Sprintf("testtask%v", i+shift)).Times(2)
-							m.EXPECT().ExecutedTaskObserve(fmt.Sprintf("testrule%v", i+shift), fmt.Sprintf("testalert%v", i+shift), "shell", result.String(), nil, 0*time.Second)
-						}
+						i := 0
+						ts[i].EXPECT().BlockTTL().Return(10 * time.Minute).Times(2)
+						ts[i].EXPECT().Fingerprint().Return(fmt.Sprintf("testfp%v", i+shift)).Times(2)
+						ts[i].EXPECT().ExecutorName().Return("shell").Times(2)
+						b.EXPECT().BlockInProgress("shell", fmt.Sprintf("testfp%v", i+shift)).Return(true, nil)
+						ts[i].EXPECT().Exec(l).Return(nil)
+						b.EXPECT().BlockForTTL("shell", fmt.Sprintf("testfp%v", i+shift), 10*time.Minute).Return(nil)
+						ts[i].EXPECT().EventID().Return(fmt.Sprintf("testid%v", i+shift)).Times(2)
+						ts[i].EXPECT().Rule().Return(fmt.Sprintf("testrule%v", i+shift)).Times(3)
+						ts[i].EXPECT().Alert().Return(fmt.Sprintf("testalert%v", i+shift)).Times(3)
+						ts[i].EXPECT().ExecutorName().Return("shell").Times(3)
+						ts[i].EXPECT().ExecutorDetails().Return(fmt.Sprintf("testtask%v", i+shift)).Times(2)
+						m.EXPECT().ExecutedTaskObserve(fmt.Sprintf("testrule%v", i+shift), fmt.Sprintf("testalert%v", i+shift), "shell", execResultSuccess.String(), nil, 0*time.Second)
+
+						i = 1
+						ts[i].EXPECT().BlockTTL().Return(10 * time.Minute).Times(1)
+						ts[i].EXPECT().Fingerprint().Return(fmt.Sprintf("testfp%v", i+shift))
+						ts[i].EXPECT().ExecutorName().Return("shell")
+						b.EXPECT().BlockInProgress("shell", fmt.Sprintf("testfp%v", i+shift)).Return(false, nil)
+						ts[i].EXPECT().EventID().Return(fmt.Sprintf("testid%v", i+shift)).Times(2)
+						ts[i].EXPECT().Rule().Return(fmt.Sprintf("testrule%v", i+shift)).Times(3)
+						ts[i].EXPECT().Alert().Return(fmt.Sprintf("testalert%v", i+shift)).Times(3)
+						ts[i].EXPECT().ExecutorName().Return("shell").Times(3)
+						ts[i].EXPECT().ExecutorDetails().Return(fmt.Sprintf("testtask%v", i+shift)).Times(2)
+						m.EXPECT().ExecutedTaskObserve(fmt.Sprintf("testrule%v", i+shift), fmt.Sprintf("testalert%v", i+shift), "shell", execResultInBlock.String(), nil, 0*time.Second)
+
+						i = 2
+						ts[i].EXPECT().EventID().Return(fmt.Sprintf("testid%v", i+shift)).Times(1)
+						ts[i].EXPECT().Rule().Return(fmt.Sprintf("testrule%v", i+shift)).Times(1)
+						ts[i].EXPECT().Alert().Return(fmt.Sprintf("testalert%v", i+shift)).Times(1)
+						ts[i].EXPECT().ExecutorName().Return("shell").Times(1)
+						ts[i].EXPECT().ExecutorDetails().Return(fmt.Sprintf("testtask%v", i+shift)).Times(1)
 					},
 				},
 			},
