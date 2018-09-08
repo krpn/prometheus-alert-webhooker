@@ -66,35 +66,9 @@ func New(
 
 	configer.SetConfigType(extension)
 
-	if provider == ProviderFile {
-		if len(endpoint) != 0 {
-			return nil, fmt.Errorf("incorrect path for provider %v", provider)
-		}
-
-		var b []byte
-		b, err = readFileFunc(path)
-		if err != nil {
-			return nil, err
-		}
-
-		err = configer.ReadConfig(bytes.NewReader(b))
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		if len(endpoint) == 0 {
-			return nil, fmt.Errorf("empty endpoint for provider %v", provider)
-		}
-
-		err = configer.AddRemoteProvider(provider, endpoint, path)
-		if err != nil {
-			return nil, err
-		}
-
-		err = configer.ReadRemoteConfig()
-		if err != nil {
-			return nil, err
-		}
+	err = readConfig(readFileFunc, configer, provider, endpoint, path)
+	if err != nil {
+		return nil, err
 	}
 
 	conf := &Config{}
@@ -113,6 +87,33 @@ func New(
 	}
 
 	return conf, nil
+}
+
+func readConfig(readFileFunc func(string) ([]byte, error), configer configer, provider, endpoint, path string) (err error) {
+	if provider == ProviderFile {
+		if len(endpoint) != 0 {
+			return fmt.Errorf("incorrect path for provider %v", provider)
+		}
+
+		var b []byte
+		b, err = readFileFunc(path)
+		if err != nil {
+			return
+		}
+
+		return configer.ReadConfig(bytes.NewReader(b))
+	}
+
+	if len(endpoint) == 0 {
+		return fmt.Errorf("empty endpoint for provider %v", provider)
+	}
+
+	err = configer.AddRemoteProvider(provider, endpoint, path)
+	if err != nil {
+		return
+	}
+
+	return configer.ReadRemoteConfig()
 }
 
 func refreshDaemon(config *Config, provider, path string, configer configer, logger *logrus.Logger, taskExecutors map[string]executor.TaskExecutor, refreshIterations int) {
