@@ -341,7 +341,7 @@ func TestPrepareParams(t *testing.T) {
 					"instance": "s1.server.com:8080",
 				},
 				Annotations: map[string]string{
-					"desc": "https://domain.com/test?instance=${CUT_AFTER_LAST_COLON_URLENCODE_LABEL_INSTANCE}",
+					"desc": "https://domain.com/test?instance=${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
 				},
 			},
 			params: map[string]interface{}{

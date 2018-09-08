@@ -43,48 +43,24 @@ func TestReplacePlaceholders(t *testing.T) {
 			expected: "some replacement",
 		},
 		{
-			tcase:    "${CUT_AFTER_LAST_COLON_URLENCODE_LABEL_TEST}",
-			str:      "${CUT_AFTER_LAST_COLON_URLENCODE_LABEL_TEST}",
+			tcase:    "${CUT_AFTER_LAST_COLON_LABEL_TEST} no colon found",
+			str:      "${CUT_AFTER_LAST_COLON_LABEL_TEST}",
 			prefix:   "LABEL",
 			label:    "test",
-			new:      "some replacement:8080",
-			expected: "some+replacement",
+			new:      "some replacement 8080",
+			expected: "some replacement 8080",
+		},
+		{
+			tcase:    "${JSON_ESCAPE_LABEL_TEST}",
+			str:      "${JSON_ESCAPE_LABEL_TEST}",
+			prefix:   "LABEL",
+			label:    "test",
+			new:      `some \replacement "8080`,
+			expected: `some \\replacement \"8080`,
 		},
 	}
 
 	for _, testUnit := range testTable {
 		assert.Equal(t, testUnit.expected, ReplacePlaceholders(testUnit.str, testUnit.prefix, testUnit.label, testUnit.new), testUnit.tcase)
-	}
-}
-
-func TestTrimStringFromSymbol(t *testing.T) {
-	t.Parallel()
-
-	type testTableData struct {
-		str      string
-		symbol   string
-		expected string
-	}
-
-	testTable := []testTableData{
-		{
-			str:      "server.domain.com:9090",
-			symbol:   ":",
-			expected: "server.domain.com",
-		},
-		{
-			str:      "server.domain.com",
-			symbol:   ":",
-			expected: "server.domain.com",
-		},
-		{
-			str:      "server:domain:com:9090",
-			symbol:   ":",
-			expected: "server:domain:com",
-		},
-	}
-
-	for _, testUnit := range testTable {
-		assert.Equal(t, testUnit.expected, trimStringFromSymbol(testUnit.str, testUnit.symbol))
 	}
 }

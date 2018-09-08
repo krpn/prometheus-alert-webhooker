@@ -13,24 +13,53 @@ import (
 //     new    - new value
 func ReplacePlaceholders(str, prefix, label, new string) string {
 
-	ulabel := fmt.Sprintf("%v_%v", prefix, strings.ToUpper(label))
-	str = strings.Replace(str, fmt.Sprintf("${%v}", ulabel), new, -1)
-
-	eulabel := fmt.Sprintf("URLENCODE_%v", ulabel)
-	str = strings.Replace(str, fmt.Sprintf("${%v}", eulabel), url.QueryEscape(new), -1)
-
-	culabel := fmt.Sprintf("CUT_AFTER_LAST_COLON_%v", ulabel)
-	str = strings.Replace(str, fmt.Sprintf("${%v}", culabel), trimStringFromSymbol(new, ":"), -1)
-
-	cuelabel := fmt.Sprintf("CUT_AFTER_LAST_COLON_%v", eulabel)
-	str = strings.Replace(str, fmt.Sprintf("${%v}", cuelabel), url.QueryEscape(trimStringFromSymbol(new, ":")), -1)
+	for _, m := range modificators {
+		mask := "${%v_%v}"
+		if m.mod != "" {
+			mask = fmt.Sprintf("${%v_%%v_%%v}", m.mod)
+		}
+		str = strings.Replace(
+			str,
+			fmt.Sprintf(mask, prefix, strings.ToUpper(label)),
+			m.modFunc(new),
+			-1,
+		)
+	}
 
 	return str
 }
 
-func trimStringFromSymbol(s string, symbol string) string {
-	if idx := strings.LastIndex(s, symbol); idx != -1 {
-		return s[:idx]
-	}
-	return s
+var modificators = []struct {
+	mod     string
+	modFunc func(string) string
+}{
+	{
+		mod: "",
+		modFunc: func(s string) string {
+			return s
+		},
+	},
+	{
+		mod: "URLENCODE",
+		modFunc: func(s string) string {
+			return url.QueryEscape(s)
+		},
+	},
+	{
+		mod: "CUT_AFTER_LAST_COLON",
+		modFunc: func(s string) string {
+			if idx := strings.LastIndex(s, ":"); idx != -1 {
+				return s[:idx]
+			}
+			return s
+		},
+	},
+	{
+		mod: "JSON_ESCAPE",
+		modFunc: func(s string) string {
+			s = strings.Replace(s, `\`, `\\`, -1)
+			s = strings.Replace(s, `"`, `\"`, -1)
+			return s
+		},
+	},
 }

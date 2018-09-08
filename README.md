@@ -138,15 +138,17 @@ rules:
     # parameter values can contains placeholders fully in UPPER case:
     #   ${LABELS_<LABEL_N>} will be replaced by <label_value_n>
     #   ${ANNOTATIONS_<ANNOTATION_N>} will be replaced by <annotation_value_n>
-    # each placeholder can have modificator (optionally): ${<MOD>LABELS_<LABEL_N>}
-    # <MOD> list:
+    # each placeholder can have one modificator (optionally): ${<MODIFICATOR>LABELS_<LABEL_N>}
+    # <MODIFICATOR> list:
     #   URLENCODE_            - escapes the string so it can be safely placed inside a URL query
     #   CUT_AFTER_LAST_COLON_ - cuts text after last colon, can be used for cut port from instance label
+    #   JSON_ESCAPE_          - escapes the string so it can be safely placed inside a JSON value
     # examples:
     #   ${LABEL_ALERTNAME} - alert name
     #   ${ANNOTATIONS_COMMAND} - value from annotation "command"
     #   ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} - instance without port
     #   ${URLENCODE_ANNOTATIONS_SUMMARY} - urlencoded value from annotation "summary"
+    #   ${JSON_ESCAPE_ANNOTATIONS_DESCRIPTION} - JSON escaped value from annotation "description"
     parameters:
       <parameter_1>: <parameter_1_value>
       <parameter_n>: <parameter_n_value>
