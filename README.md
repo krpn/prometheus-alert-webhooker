@@ -196,14 +196,14 @@ Executors and it parameters described below.
 
 `http` is used for making HTTP requests.
 
-| Parameter            | Type       | Description                                                                 | Example                                                    |
-|----------------------|:----------:|-----------------------------------------------------------------------------|------------------------------------------------------------|
-| url                  | `string`   | Request URL                                                                 | `url: https://www.example.com/`                            |
-| method               | `string`   | (optional, default: GET) Request method                                     | `method: POST`                                             |
-| body                 | `string`   | (optional) Request body                                                     | `body: {"data": "${JSON_ESCAPE_ANNOTATIONS_DESCRIPTION}"}` |
-| header <header_name> | `string`   | (optional) Sets header <header_name>                                        | `header Authorization: ba0828c9fac6b0b47d9147963429d091`   |
-| timeout              | `duration` | (optional, default: 1s) Request timeout                                     | `timeout: 100ms`                                           |
-| success_http_status  | `integer`  | (optional, default: 200) Success response status code, checks after request | `secure_interations_limit: 500`                            |
+| Parameter            | Type       | Description                                                                                  | Example                                                    |
+|----------------------|:----------:|----------------------------------------------------------------------------------------------|------------------------------------------------------------|
+| url                  | `string`   | Request URL                                                                                  | `url: https://www.example.com/`                            |
+| method               | `string`   | (optional, default: GET) Request method                                                      | `method: POST`                                             |
+| body                 | `string`   | (optional) Request body                                                                      | `body: {"data": "${JSON_ESCAPE_ANNOTATIONS_DESCRIPTION}"}` |
+| header <header_name> | `string`   | (optional) Sets header <header_name>                                                         | `header Authorization: ba0828c9fac6b0b47d9147963429d091`   |
+| timeout              | `duration` | (optional, default: 1s) Request timeout                                                      | `timeout: 100ms`                                           |
+| success_http_status  | `integer`  | (optional, default: 200) Success response status code, will be checked after request execute | `success_http_status: 201`                                 |
 
 ## Executor `telegram`
 

@@ -341,7 +341,7 @@ func TestHTTPTask_Exec(t *testing.T) {
 					Body:       ioutil.NopCloser(bytes.NewBufferString("resp body")),
 				}, nil)
 			},
-			expectedErr: errors.New("returned HTTP status: 504"),
+			expectedErr: errors.New("returned HTTP status: 504, body close error: <nil>"),
 		},
 		{
 			tcase: "request error",

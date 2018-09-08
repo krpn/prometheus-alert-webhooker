@@ -109,8 +109,7 @@ func (task *task) Exec(logger *logrus.Logger) error {
 	}
 
 	if resp.StatusCode != task.successHTTPStatus {
-		_ = resp.Body.Close()
-		return fmt.Errorf("returned HTTP status: %v", resp.StatusCode)
+		return fmt.Errorf("returned HTTP status: %v, body close error: %v", resp.StatusCode, resp.Body.Close())
 	}
 
 	return resp.Body.Close()
