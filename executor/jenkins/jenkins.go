@@ -185,7 +185,7 @@ func (executor taskExecutor) ValidateParameters(parameters map[string]interface{
 		}
 		_, ok = parameters[reqParam].(string)
 		if !ok {
-			return fmt.Errorf("%v parameter value is not string", reqParam)
+			return fmt.Errorf("%v parameter value is not a string", reqParam)
 		}
 	}
 
@@ -195,7 +195,7 @@ func (executor taskExecutor) ValidateParameters(parameters map[string]interface{
 		}
 
 		if _, ok := val.(string); !ok {
-			return fmt.Errorf("%v parameter value is not string", key)
+			return fmt.Errorf("%v parameter value is not a string", key)
 		}
 	}
 

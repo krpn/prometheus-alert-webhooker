@@ -138,6 +138,16 @@ func (executor taskExecutor) ValidateParameters(parameters map[string]interface{
 		}
 	}
 
+	for key, val := range parameters {
+		if !strings.HasPrefix(key, paramHeaderPrefix) {
+			continue
+		}
+
+		if _, ok := val.(string); !ok {
+			return fmt.Errorf("%v parameter value is not a string", key)
+		}
+	}
+
 	return nil
 }
 

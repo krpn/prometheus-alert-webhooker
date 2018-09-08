@@ -115,7 +115,7 @@ func TestJenkinsTaskExecutor_ValidateParameters(t *testing.T) {
 				"login":    123,
 				"password": "qwerty123",
 			},
-			expected: errors.New("login parameter value is not string"),
+			expected: errors.New("login parameter value is not a string"),
 		},
 		{
 			tcase: "param wrong type",
@@ -126,7 +126,7 @@ func TestJenkinsTaskExecutor_ValidateParameters(t *testing.T) {
 				"password":            "qwerty123",
 				"job parameter wrong": 123,
 			},
-			expected: errors.New("job parameter wrong parameter value is not string"),
+			expected: errors.New("job parameter wrong parameter value is not a string"),
 		},
 	}
 

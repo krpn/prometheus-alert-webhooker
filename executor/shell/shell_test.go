@@ -112,7 +112,7 @@ func TestShellTaskExecutor_ValidateParameters(t *testing.T) {
 		{
 			tcase:    "param wrong type",
 			params:   map[string]interface{}{"command": 123},
-			expected: errors.New("command parameter value is not string"),
+			expected: errors.New("command parameter value is not a string"),
 		},
 	}
 

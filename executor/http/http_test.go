@@ -162,6 +162,7 @@ func TestHTTPTaskExecutor_ValidateParameters(t *testing.T) {
 				"body":                 "some body",
 				"header Authorization": "ba0828c9fac6b0b47d9147963429d091",
 				"timeout":              "10s",
+				"success_http_status":  200,
 			},
 			expected: nil,
 		},
@@ -172,6 +173,7 @@ func TestHTTPTaskExecutor_ValidateParameters(t *testing.T) {
 				"body":                 "some body",
 				"header Authorization": "ba0828c9fac6b0b47d9147963429d091",
 				"timeout":              "10s",
+				"success_http_status":  200,
 			},
 			expected: errors.New("required parameter url is missing"),
 		},
@@ -183,6 +185,19 @@ func TestHTTPTaskExecutor_ValidateParameters(t *testing.T) {
 				"body":   123,
 			},
 			expected: errors.New("body parameter value is not a string"),
+		},
+		{
+			tcase: "param header Int wrong type",
+			params: map[string]interface{}{
+				"url":                  "http://www.test.com/",
+				"method":               "POST",
+				"body":                 "some body",
+				"header Authorization": "ba0828c9fac6b0b47d9147963429d091",
+				"header Int":           123,
+				"timeout":              "10s",
+				"success_http_status":  200,
+			},
+			expected: errors.New("header Int parameter value is not a string"),
 		},
 	}
 
@@ -376,7 +391,7 @@ func TestHTTPTask_Exec(t *testing.T) {
 			tcase: "new request error",
 			task: func() *task {
 				task := &task{
-					method:            "GET",
+					method:            "POST",
 					url:               "http://www test com/",
 					body:              "some body",
 					headers:           map[string]string{"Authorization": "ba0828c9fac6b0b47d9147963429d091"},
