@@ -34,7 +34,7 @@ func TestBlocker_BlockInProgress(t *testing.T) {
 			fingerprint: "test",
 			expectFunc: func(m *Mockcacher, key []byte) {
 				m.EXPECT().Get(key).Return(nil, freecache.ErrNotFound)
-				m.EXPECT().Set(key, defValue, foreverTTL).Return(nil)
+				m.EXPECT().Set(key, []byte(defValue), foreverTTL).Return(nil)
 			},
 			expectedBlockedSuccessfully: true,
 			expectedErr:                 nil,
@@ -45,7 +45,7 @@ func TestBlocker_BlockInProgress(t *testing.T) {
 			fingerprint: "test",
 			expectFunc: func(m *Mockcacher, key []byte) {
 				m.EXPECT().Get(key).Return(nil, freecache.ErrNotFound)
-				m.EXPECT().Set(key, defValue, foreverTTL).Return(errors.New("set error"))
+				m.EXPECT().Set(key, []byte(defValue), foreverTTL).Return(errors.New("set error"))
 			},
 			expectedBlockedSuccessfully: false,
 			expectedErr:                 errors.New("set error"),

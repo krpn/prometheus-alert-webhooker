@@ -194,30 +194,26 @@ func TestNew(t *testing.T) {
 	}
 
 	type testTableData struct {
-		tcase              string
-		configBytes        []byte
-		configer           configer
-		supportedProviders []string
-		supportedExts      []string
-		configProvider     string
-		configPath         string
-		refreshIterations  int
-		readFileFuncErr    error
-		expectFunc         func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T)
-		expectedConfig     func() *Config
-		expectedErr        error
-		expectedLogs       []string
+		tcase             string
+		configBytes       []byte
+		configer          configer
+		configProvider    string
+		configPath        string
+		refreshIterations int
+		readFileFuncErr   error
+		expectFunc        func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T)
+		expectedConfig    func() *Config
+		expectedErr       error
+		expectedLogs      []string
 	}
 
 	testTable := []testTableData{
 		{
-			tcase:              "yaml",
-			configBytes:        yamlConfigBytes,
-			configer:           viper.New(),
-			supportedProviders: SupportedProviders,
-			supportedExts:      viper.SupportedExts,
-			configProvider:     ProviderFile,
-			configPath:         "config/config.yaml",
+			tcase:          "yaml",
+			configBytes:    yamlConfigBytes,
+			configer:       viper.New(),
+			configProvider: ProviderFile,
+			configPath:     "config/config.yaml",
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				eMocks["shell"].EXPECT().ValidateParameters(map[string]interface{}{
 					"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
@@ -236,13 +232,11 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "json",
-			configBytes:        jsonConfigBytes,
-			configer:           viper.New(),
-			supportedProviders: SupportedProviders,
-			supportedExts:      viper.SupportedExts,
-			configProvider:     ProviderFile,
-			configPath:         "config/config.json",
+			tcase:          "json",
+			configBytes:    jsonConfigBytes,
+			configer:       viper.New(),
+			configProvider: ProviderFile,
+			configPath:     "config/config.json",
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				eMocks["shell"].EXPECT().ValidateParameters(map[string]interface{}{
 					"command": "./clean_server.sh ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}",
@@ -261,27 +255,23 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "json without rules",
-			configBytes:        jsonWithoutRulesConfigBytes,
-			configer:           viper.New(),
-			supportedProviders: SupportedProviders,
-			supportedExts:      viper.SupportedExts,
-			configProvider:     ProviderFile,
-			configPath:         "config/config.json",
+			tcase:          "json without rules",
+			configBytes:    jsonWithoutRulesConfigBytes,
+			configer:       viper.New(),
+			configProvider: ProviderFile,
+			configPath:     "config/config.json",
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 			},
 			expectedConfig: func() *Config { return nil },
 			expectedErr:    errors.New("empty rules list"),
 		},
 		{
-			tcase:              "read file error",
-			configBytes:        []byte("some raw cfg"),
-			configer:           configerMock,
-			supportedProviders: []string{"file", "consul"},
-			supportedExts:      []string{"json"},
-			configProvider:     ProviderFile,
-			configPath:         "config/config.json",
-			readFileFuncErr:    errors.New("read file error"),
+			tcase:           "read file error",
+			configBytes:     []byte("some raw cfg"),
+			configer:        configerMock,
+			configProvider:  ProviderFile,
+			configPath:      "config/config.json",
+			readFileFuncErr: errors.New("read file error"),
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 			},
@@ -290,13 +280,11 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "read config error",
-			configBytes:        []byte("some raw cfg"),
-			configer:           configerMock,
-			supportedProviders: []string{"file", "consul"},
-			supportedExts:      []string{"json"},
-			configProvider:     ProviderFile,
-			configPath:         "config/config.json",
+			tcase:          "read config error",
+			configBytes:    []byte("some raw cfg"),
+			configer:       configerMock,
+			configProvider: ProviderFile,
+			configPath:     "config/config.json",
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().ReadConfig(bytes.NewReader(configBytes)).Return(errors.New("read config error"))
@@ -306,13 +294,11 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "unmarshal error",
-			configBytes:        []byte("some raw cfg"),
-			configer:           configerMock,
-			supportedProviders: []string{"file"},
-			supportedExts:      []string{"json"},
-			configProvider:     ProviderFile,
-			configPath:         "config/config.json",
+			tcase:          "unmarshal error",
+			configBytes:    []byte("some raw cfg"),
+			configer:       configerMock,
+			configProvider: ProviderFile,
+			configPath:     "config/config.json",
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().ReadConfig(bytes.NewReader(configBytes)).Return(nil)
@@ -323,43 +309,12 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "unsupported config profider",
-			configBytes:        []byte("some raw cfg"),
-			configer:           configerMock,
-			supportedProviders: []string{"file"},
-			supportedExts:      []string{"json"},
-			configProvider:     "zookeeper",
-			configPath:         "config/config.jpeg",
-			refreshIterations:  1,
-			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
-			},
-			expectedConfig: func() *Config { return nil },
-			expectedErr:    errors.New("unsupported config provider zookeeper"),
-			expectedLogs:   []string{},
-		},
-		{
-			tcase:              "unsupported config type",
-			configBytes:        []byte("some raw cfg"),
-			configer:           configerMock,
-			supportedProviders: []string{"file"},
-			supportedExts:      []string{"json"},
-			configProvider:     ProviderFile,
-			configPath:         "config/config.jpeg",
-			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
-			},
-			expectedConfig: func() *Config { return nil },
-			expectedErr:    errors.New("unsupported config type jpeg"),
-			expectedLogs:   []string{},
-		},
-		{
-			tcase:              "uncorrect url",
-			configBytes:        []byte("some raw cfg"),
-			configer:           configerMock,
-			supportedProviders: []string{"file", "consul"},
-			supportedExts:      []string{"json"},
-			configProvider:     "consul",
-			configPath:         "http://127 0 0 1:4001/config/hugo.json?ver=1",
-			refreshIterations:  1,
+			tcase:             "uncorrect url",
+			configBytes:       []byte("some raw cfg"),
+			configer:          configerMock,
+			configProvider:    "consul",
+			configPath:        "http://127 0 0 1:4001/config/hugo.json?ver=1",
+			refreshIterations: 1,
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 			},
 			expectedConfig: func() *Config { return nil },
@@ -367,13 +322,11 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "incorrect path for provider",
-			configBytes:        []byte("some raw cfg"),
-			configer:           configerMock,
-			supportedProviders: []string{"file"},
-			supportedExts:      []string{"json"},
-			configProvider:     ProviderFile,
-			configPath:         "http://127.0.0.1:4001/config/hugo.json",
+			tcase:          "incorrect path for provider",
+			configBytes:    []byte("some raw cfg"),
+			configer:       configerMock,
+			configProvider: ProviderFile,
+			configPath:     "http://127.0.0.1:4001/config/hugo.json",
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 			},
@@ -382,13 +335,11 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "empty endpoint for provider",
-			configBytes:        []byte("some raw cfg"),
-			configer:           configerMock,
-			supportedProviders: SupportedProviders,
-			supportedExts:      []string{"json"},
-			configProvider:     "etcd",
-			configPath:         "config/hugo.json",
+			tcase:          "empty endpoint for provider",
+			configBytes:    []byte("some raw cfg"),
+			configer:       configerMock,
+			configProvider: "etcd",
+			configPath:     "config/hugo.json",
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 			},
@@ -398,14 +349,12 @@ func TestNew(t *testing.T) {
 			expectedLogs:      []string{},
 		},
 		{
-			tcase:              "read remote config + 2 refresh iterations (no changes + error)",
-			configBytes:        jsonConfigBytes,
-			configer:           configerMock,
-			supportedProviders: SupportedProviders,
-			supportedExts:      []string{"json"},
-			configProvider:     "consul",
-			configPath:         "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
-			refreshIterations:  2,
+			tcase:             "read remote config + 2 refresh iterations (no changes + error)",
+			configBytes:       jsonConfigBytes,
+			configer:          configerMock,
+			configProvider:    "consul",
+			configPath:        "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
+			refreshIterations: 2,
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().AddRemoteProvider("consul", "127.0.0.1:4001", "common/webhooker.json").Return(nil)
@@ -450,14 +399,12 @@ func TestNew(t *testing.T) {
 			},
 		},
 		{
-			tcase:              "read remote config + 1 refresh iteration with changes",
-			configBytes:        jsonConfigBytes,
-			configer:           configerMock,
-			supportedProviders: SupportedProviders,
-			supportedExts:      []string{"json"},
-			configProvider:     "consul",
-			configPath:         "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
-			refreshIterations:  1,
+			tcase:             "read remote config + 1 refresh iteration with changes",
+			configBytes:       jsonConfigBytes,
+			configer:          configerMock,
+			configProvider:    "consul",
+			configPath:        "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
+			refreshIterations: 1,
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().AddRemoteProvider("consul", "127.0.0.1:4001", "common/webhooker.json").Return(nil)
@@ -506,14 +453,12 @@ func TestNew(t *testing.T) {
 			},
 		},
 		{
-			tcase:              "add remote provider error",
-			configBytes:        []byte("some raw cfg"),
-			configer:           configerMock,
-			supportedProviders: SupportedProviders,
-			supportedExts:      []string{"json"},
-			configProvider:     "consul",
-			configPath:         "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
-			refreshIterations:  1,
+			tcase:             "add remote provider error",
+			configBytes:       []byte("some raw cfg"),
+			configer:          configerMock,
+			configProvider:    "consul",
+			configPath:        "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
+			refreshIterations: 1,
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().AddRemoteProvider("consul", "127.0.0.1:4001", "common/webhooker.json").Return(errors.New("add remote provider error"))
@@ -523,14 +468,12 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "read remote config error",
-			configBytes:        []byte("some raw cfg"),
-			configer:           configerMock,
-			supportedProviders: SupportedProviders,
-			supportedExts:      []string{"json"},
-			configProvider:     "consul",
-			configPath:         "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
-			refreshIterations:  1,
+			tcase:             "read remote config error",
+			configBytes:       []byte("some raw cfg"),
+			configer:          configerMock,
+			configProvider:    "consul",
+			configPath:        "http://127.0.0.1:4001/v1/kv/common/webhooker.json",
+			refreshIterations: 1,
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				c.EXPECT().SetConfigType("json")
 				c.EXPECT().AddRemoteProvider("consul", "127.0.0.1:4001", "common/webhooker.json").Return(nil)
@@ -541,13 +484,11 @@ func TestNew(t *testing.T) {
 			expectedLogs:   []string{},
 		},
 		{
-			tcase:              "json with integer",
-			configBytes:        jsonConfigTelegramChatIDBytes,
-			configer:           viper.New(),
-			supportedProviders: SupportedProviders,
-			supportedExts:      viper.SupportedExts,
-			configProvider:     ProviderFile,
-			configPath:         "config/config.json",
+			tcase:          "json with integer",
+			configBytes:    jsonConfigTelegramChatIDBytes,
+			configer:       viper.New(),
+			configProvider: ProviderFile,
+			configPath:     "config/config.json",
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				eMocks["telegram"].EXPECT().ValidateParameters(map[string]interface{}{
 					"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
@@ -593,13 +534,11 @@ func TestNew(t *testing.T) {
 			expectedLogs: []string{},
 		},
 		{
-			tcase:              "yaml with integer",
-			configBytes:        yamlConfigTelegramChatIDBytes,
-			configer:           viper.New(),
-			supportedProviders: SupportedProviders,
-			supportedExts:      viper.SupportedExts,
-			configProvider:     ProviderFile,
-			configPath:         "config/config.yaml",
+			tcase:          "yaml with integer",
+			configBytes:    yamlConfigTelegramChatIDBytes,
+			configer:       viper.New(),
+			configProvider: ProviderFile,
+			configPath:     "config/config.yaml",
 			expectFunc: func(c *Mockconfiger, eMocks map[string]*executor.MockTaskExecutor, configBytes []byte, t *testing.T) {
 				eMocks["telegram"].EXPECT().ValidateParameters(map[string]interface{}{
 					"bot_token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
@@ -671,8 +610,6 @@ func TestNew(t *testing.T) {
 		config, err := New(
 			readFileFunc,
 			testUnit.configer,
-			testUnit.supportedProviders,
-			testUnit.supportedExts,
 			testUnit.configProvider,
 			testUnit.configPath,
 			logger,

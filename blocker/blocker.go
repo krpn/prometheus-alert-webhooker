@@ -7,7 +7,10 @@ import (
 	"time"
 )
 
-const foreverTTL = 0
+const (
+	foreverTTL = 0
+	defValue   = "l"
+)
 
 // Blocker blocks tasks by executor name and fingerprint.
 type Blocker struct {
@@ -56,14 +59,12 @@ func (b *Blocker) Unblock(executor, fingerprint string) {
 	_ = b.cache.Del(getBlockKey(executor, fingerprint))
 }
 
-var defValue = []byte("l")
-
 // New creates Blocker instance.
 func New(cache cacher) *Blocker {
 	return &Blocker{
 		cache:    cache,
 		mt:       &sync.Mutex{},
-		defValue: defValue,
+		defValue: []byte(defValue),
 	}
 }
 

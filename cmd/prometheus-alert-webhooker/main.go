@@ -62,8 +62,6 @@ func main() {
 	config, err := cfg.New(
 		ioutil.ReadFile,
 		viper.New(),
-		cfg.SupportedProviders,
-		viper.SupportedExts,
 		*configProvider,
 		*configPath,
 		logger,

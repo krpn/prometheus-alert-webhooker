@@ -37,14 +37,10 @@ const (
 	context = "startup"
 )
 
-// SupportedProviders is a list of supported config providers.
-var SupportedProviders = append(viper.SupportedRemoteProviders, ProviderFile)
-
 // New creates Config instance.
 func New(
 	readFileFunc func(string) ([]byte, error),
 	configer configer,
-	supportedProviders, supportedExts []string,
 	provider, rawPath string,
 	logger *logrus.Logger,
 	taskExecutors map[string]executor.TaskExecutor,
@@ -54,14 +50,6 @@ func New(
 	endpoint, path, extension, err := utils.ParsePath(rawPath, defaultConfigType, provider)
 	if err != nil {
 		return nil, err
-	}
-
-	if !utils.StringSliceContains(supportedProviders, provider) {
-		return nil, fmt.Errorf("unsupported config provider %v", provider)
-	}
-
-	if !utils.StringSliceContains(supportedExts, extension) {
-		return nil, fmt.Errorf("unsupported config type %v", extension)
 	}
 
 	configer.SetConfigType(extension)
