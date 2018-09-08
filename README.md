@@ -174,46 +174,46 @@ Executors and it parameters described below.
 
 `jenkins` is used for run Jenkins jobs. Runner starts job, waits job finish and check it was successfull.
 
-| Parameter                      | Type       | Description                                                                                                                  | Example                                                        |
-|--------------------------------|:----------:|------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
-| endpoint                       | `string`   | Jenkins address                                                                                                              | `endpoint: https://jenkins.example.com/`                       |
-| login                          | `string`   | Jenkins login                                                                                                                | `login: webhooker`                                             |
-| password                       | `string`   | Jenkins password                                                                                                             | `password: qwerty123`                                          |
-| job                            | `string`   | Name of job to run. If you use Jenkins Folders Plugin you need set the full path to job                                      | `job: YourJob or Folder/job/YourJob (Folders Plugin)`          |
-| job parameter <parameter_name> | `string`   | (optional) Pass <parameter_name> to job                                                                                      | `job parameter server: ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}` |
-| state_refresh_delay            | `duration` | (optional, default: 15s) How often runner will be refresh job status when executing                                          | `state_refresh_delay: 3s`                                      |
-| secure_interations_limit       | `integer`  | (optional, default: 1000) How many refresh status iterations will be until Job will be considered hung and runner release it | `secure_interations_limit: 500`                                |
+| Parameter                        | Type       | Description                                                                                                                  | Example                                                        |
+|----------------------------------|:----------:|------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| `endpoint`                       | `string`   | Jenkins address                                                                                                              | `endpoint: https://jenkins.example.com/`                       |
+| `login`                          | `string`   | Jenkins login                                                                                                                | `login: webhooker`                                             |
+| `password`                       | `string`   | Jenkins password                                                                                                             | `password: qwerty123`                                          |
+| `job`                            | `string`   | Name of job to run. If you use Jenkins Folders Plugin you need set the full path to job                                      | `job: YourJob or Folder/job/YourJob (Folders Plugin)`          |
+| `job parameter <parameter_name>` | `string`   | (optional) Pass <parameter_name> to job                                                                                      | `job parameter server: ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE}` |
+| `state_refresh_delay`            | `duration` | (optional, default: 15s) How often runner will be refresh job status when executing                                          | `state_refresh_delay: 3s`                                      |
+| `secure_interations_limit`       | `integer`  | (optional, default: 1000) How many refresh status iterations will be until Job will be considered hung and runner release it | `secure_interations_limit: 500`                                |
 
 ## Executor `shell`
 
 `shell` is used for run unix shell command. *Remember: all shell scripts must be mounted if you use Docker.*
 
-| Parameter | Type       | Description         | Example                               |
-|-----------|:----------:|---------------------|---------------------------------------|
-| command   | `string`   | Command for execute | `command: ./clean.sh ${LABEL_FOLDER}` |
+| Parameter | Type     | Description         | Example                               |
+|-----------|:--------:|---------------------|---------------------------------------|
+| `command` | `string` | Command for execute | `command: ./clean.sh ${LABEL_FOLDER}` |
 
 ## Executor `http`
 
 `http` is used for making HTTP requests.
 
-| Parameter            | Type       | Description                                                                                  | Example                                                    |
-|----------------------|:----------:|----------------------------------------------------------------------------------------------|------------------------------------------------------------|
-| url                  | `string`   | Request URL                                                                                  | `url: https://www.example.com/`                            |
-| method               | `string`   | (optional, default: GET) Request method                                                      | `method: POST`                                             |
-| body                 | `string`   | (optional) Request body                                                                      | `body: {"data": "${JSON_ESCAPE_ANNOTATIONS_DESCRIPTION}"}` |
-| header <header_name> | `string`   | (optional) Sets header <header_name>                                                         | `header Authorization: ba0828c9fac6b0b47d9147963429d091`   |
-| timeout              | `duration` | (optional, default: 1s) Request timeout                                                      | `timeout: 100ms`                                           |
-| success_http_status  | `integer`  | (optional, default: 200) Success response status code, will be checked after request execute | `success_http_status: 201`                                 |
+| Parameter              | Type       | Description                                                                                  | Example                                                    |
+|------------------------|:----------:|----------------------------------------------------------------------------------------------|------------------------------------------------------------|
+| `url`                  | `string`   | Request URL                                                                                  | `url: https://www.example.com/`                            |
+| `method`               | `string`   | (optional, default: GET) Request method                                                      | `method: POST`                                             |
+| `body`                 | `string`   | (optional) Request body                                                                      | `body: {"data": "${JSON_ESCAPE_ANNOTATIONS_DESCRIPTION}"}` |
+| `header <header_name>` | `string`   | (optional) Sets header <header_name>                                                         | `header Authorization: ba0828c9fac6b0b47d9147963429d091`   |
+| `timeout`              | `duration` | (optional, default: 1s) Request timeout                                                      | `timeout: 100ms`                                           |
+| `success_http_status`  | `integer`  | (optional, default: 200) Success response status code, will be checked after request execute | `success_http_status: 201`                                 |
 
 ## Executor `telegram`
 
 `telegram` is used for handy notifications about webhooker events.
 
-| Parameter | Type     | Description                                        | Example                                                |
-|-----------|:--------:|----------------------------------------------------|--------------------------------------------------------|
-| bot_token | `string` | Bot token from [BotFather](https://t.me/BotFather) | `bot_token: 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` |
-| chat_id   | `int`    | Chat ID for send notifications to                  | `chat_id: -1001103941234`                              |
-| message   | `string` | Message for send                                   | `message: Fixed ${LABEL_ALERTNAME}`                    |
+| Parameter   | Type     | Description                                        | Example                                                |
+|-------------|:--------:|----------------------------------------------------|--------------------------------------------------------|
+| `bot_token` | `string` | Bot token from [BotFather](https://t.me/BotFather) | `bot_token: 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` |
+| `chat_id`   | `int`    | Chat ID for send notifications to                  | `chat_id: -1001103941234`                              |
+| `message`   | `string` | Message for send                                   | `message: Fixed ${LABEL_ALERTNAME}`                    |
 
 [(back to top)](#prometheus-alert-webhooker)
 
