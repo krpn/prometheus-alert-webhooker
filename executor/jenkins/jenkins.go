@@ -85,12 +85,7 @@ func (task *task) Fingerprint() string {
 }
 
 func (task *task) Exec(logger *logrus.Logger) error {
-	_, err := task.jenkins.Init()
-	if err != nil {
-		return err
-	}
-
-	queueID, err := task.jenkins.BuildJob(task.job, task.parameters)
+	queueID, err := runJob(task.jenkins, task.job, task.parameters)
 	if err != nil {
 		return err
 	}
@@ -110,11 +105,9 @@ func (task *task) Exec(logger *logrus.Logger) error {
 
 		time.Sleep(task.stateRefreshDelay)
 
-		if buildID == 0 {
-			buildID, err = getBuildID(task.jenkins, task.job, queueID)
-			if err != nil {
-				return err
-			}
+		buildID, err = getBuildIDEffectively(buildID, task.jenkins, task.job, queueID)
+		if err != nil {
+			return err
 		}
 
 		if buildID == 0 {
@@ -138,6 +131,23 @@ func (task *task) Exec(logger *logrus.Logger) error {
 	}
 
 	return nil
+}
+
+func runJob(j Jenkins, job string, parameters map[string]string) (int64, error) {
+	_, err := j.Init()
+	if err != nil {
+		return 0, err
+	}
+
+	return j.BuildJob(job, parameters)
+}
+
+func getBuildIDEffectively(currBuildID int64, j Jenkins, job string, queueID int64) (int64, error) {
+	if currBuildID != 0 {
+		return currBuildID, nil
+	}
+
+	return getBuildID(j, job, queueID)
 }
 
 func getBuildID(j Jenkins, job string, queueID int64) (int64, error) {

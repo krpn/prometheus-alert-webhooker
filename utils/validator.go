@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// CheckMapIsNotEmpty returns error if any key or value from map is empty.
 func CheckMapIsNotEmpty(m map[string]string) error {
 	for key, value := range m {
 		if len(key) == 0 {
