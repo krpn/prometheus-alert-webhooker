@@ -1,10 +1,15 @@
 package httpe
 
 import (
+	"bytes"
 	"errors"
+	"github.com/golang/mock/gomock"
 	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 	"testing"
 	"time"
 )
@@ -213,11 +218,12 @@ func TestHTTPTaskExecutor_NewTask(t *testing.T) {
 			},
 			expected: func() executor.Task {
 				task := &task{
-					method:  "GET",
-					url:     "http://www.test.com/",
-					body:    "",
-					headers: map[string]string{},
-					client:  &http.Client{Timeout: 1 * time.Second},
+					method:            "GET",
+					url:               "http://www.test.com/",
+					body:              "",
+					headers:           map[string]string{},
+					successHTTPStatus: defaultSuccessHTTPStatus,
+					client:            &http.Client{Timeout: 1 * time.Second},
 				}
 				task.SetBase("825e", "testrule1", "testalert1", 1*time.Second)
 				return task
@@ -236,14 +242,16 @@ func TestHTTPTaskExecutor_NewTask(t *testing.T) {
 				"header Authorization":     "ba0828c9fac6b0b47d9147963429d091",
 				"header Wrong type header": 123,
 				"timeout":                  "10s",
+				"success_http_status":      201,
 			},
 			expected: func() executor.Task {
 				task := &task{
-					method:  "POST",
-					url:     "http://www.test.com/",
-					body:    "some body",
-					headers: map[string]string{"Authorization": "ba0828c9fac6b0b47d9147963429d091"},
-					client:  &http.Client{Timeout: 10 * time.Second},
+					method:            "POST",
+					url:               "http://www.test.com/",
+					body:              "some body",
+					headers:           map[string]string{"Authorization": "ba0828c9fac6b0b47d9147963429d091"},
+					successHTTPStatus: 201,
+					client:            &http.Client{Timeout: 10 * time.Second},
 				}
 				task.SetBase("825e", "testrule1", "testalert1", 1*time.Second)
 				return task
@@ -254,4 +262,140 @@ func TestHTTPTaskExecutor_NewTask(t *testing.T) {
 	for _, testUnit := range testTable {
 		assert.Equal(t, testUnit.expected(), executorMock.NewTask(testUnit.eventID, testUnit.rule, testUnit.alert, testUnit.blockTTL, testUnit.preparedParameters), testUnit.tcase)
 	}
+}
+
+func TestHTTPTask_Exec(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	doerMock := NewMockDoer(ctrl)
+
+	logger, hook := test.NewNullLogger()
+
+	type testTableData struct {
+		tcase       string
+		task        func() *task
+		expectFunc  func(t *MockDoer)
+		expectedErr error
+	}
+
+	testTable := []testTableData{
+		{
+			tcase: "success with minimal parameters",
+			task: func() *task {
+				task := &task{
+					method:            "GET",
+					url:               "http://www.test.com/",
+					body:              "",
+					headers:           map[string]string{},
+					successHTTPStatus: http.StatusOK,
+					client:            doerMock,
+				}
+				task.SetBase("id", "rule", "alert", 10*time.Minute)
+				return task
+			},
+			expectFunc: func(t *MockDoer) {
+				req, _ := http.NewRequest("GET", "http://www.test.com/", nil)
+				t.EXPECT().Do(req).Return(&http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewBufferString("resp body")),
+				}, nil)
+			},
+			expectedErr: nil,
+		},
+		{
+			tcase: "bad status code",
+			task: func() *task {
+				task := &task{
+					method:            "GET",
+					url:               "http://www.test.com/",
+					body:              "",
+					headers:           map[string]string{},
+					successHTTPStatus: http.StatusOK,
+					client:            doerMock,
+				}
+				task.SetBase("id", "rule", "alert", 10*time.Minute)
+				return task
+			},
+			expectFunc: func(t *MockDoer) {
+				req, _ := http.NewRequest("GET", "http://www.test.com/", nil)
+				t.EXPECT().Do(req).Return(&http.Response{
+					StatusCode: http.StatusGatewayTimeout,
+					Body:       ioutil.NopCloser(bytes.NewBufferString("resp body")),
+				}, nil)
+			},
+			expectedErr: errors.New("returned HTTP status: 504"),
+		},
+		{
+			tcase: "request error",
+			task: func() *task {
+				task := &task{
+					method:            "GET",
+					url:               "http://www.test.com/",
+					body:              "",
+					headers:           map[string]string{},
+					successHTTPStatus: http.StatusOK,
+					client:            doerMock,
+				}
+				task.SetBase("id", "rule", "alert", 10*time.Minute)
+				return task
+			},
+			expectFunc: func(t *MockDoer) {
+				req, _ := http.NewRequest("GET", "http://www.test.com/", nil)
+				t.EXPECT().Do(req).Return(nil, errors.New("request error"))
+			},
+			expectedErr: errors.New("request error"),
+		},
+		{
+			tcase: "success with header parameter",
+			task: func() *task {
+				task := &task{
+					method:            "GET",
+					url:               "http://www.test.com/",
+					body:              "",
+					headers:           map[string]string{"Authorization": "ba0828c9fac6b0b47d9147963429d091"},
+					successHTTPStatus: http.StatusOK,
+					client:            doerMock,
+				}
+				task.SetBase("id", "rule", "alert", 10*time.Minute)
+				return task
+			},
+			expectFunc: func(t *MockDoer) {
+				req, _ := http.NewRequest("GET", "http://www.test.com/", nil)
+				req.Header.Set("Authorization", "ba0828c9fac6b0b47d9147963429d091")
+				t.EXPECT().Do(req).Return(&http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewBufferString("resp body")),
+				}, nil)
+			},
+			expectedErr: nil,
+		},
+		{
+			tcase: "new request error",
+			task: func() *task {
+				task := &task{
+					method:            "GET",
+					url:               "http://www test com/",
+					body:              "some body",
+					headers:           map[string]string{"Authorization": "ba0828c9fac6b0b47d9147963429d091"},
+					successHTTPStatus: http.StatusOK,
+					client:            doerMock,
+				}
+				task.SetBase("id", "rule", "alert", 10*time.Minute)
+				return task
+			},
+			expectFunc:  func(t *MockDoer) {},
+			expectedErr: &url.Error{Op: "parse", URL: "http://www test com/", Err: url.InvalidHostError(" ")},
+		},
+	}
+
+	for _, testUnit := range testTable {
+		testUnit.expectFunc(doerMock)
+		assert.Equal(t, testUnit.expectedErr, testUnit.task().Exec(logger), testUnit.tcase)
+	}
+
+	// logger is not used
+	assert.Equal(t, 0, len(hook.Entries))
 }

@@ -13,14 +13,16 @@ import (
 )
 
 const (
-	paramMethod       = "method"
-	paramURL          = "url"
-	paramBody         = "body"
-	paramHeaderPrefix = "header "
-	paramTimeout      = "timeout"
+	paramMethod            = "method"
+	paramURL               = "url"
+	paramBody              = "body"
+	paramHeaderPrefix      = "header "
+	paramTimeout           = "timeout"
+	paramSuccessHTTPStatus = "success_http_status"
 
-	defaultMethod  = http.MethodGet
-	defaultTimeout = 1 * time.Second
+	defaultMethod            = http.MethodGet
+	defaultTimeout           = 1 * time.Second
+	defaultSuccessHTTPStatus = http.StatusOK
 )
 
 var stringParameters = []string{
@@ -38,11 +40,12 @@ type Doer interface {
 
 type task struct {
 	executor.TaskBase
-	method  string
-	url     string
-	body    string
-	headers map[string]string
-	client  Doer
+	method            string
+	url               string
+	body              string
+	headers           map[string]string
+	successHTTPStatus int
+	client            Doer
 }
 
 func (task *task) ExecutorName() string {
@@ -83,12 +86,15 @@ func (task *task) Fingerprint() string {
 }
 
 func (task *task) Exec(logger *logrus.Logger) error {
-	var buf *bytes.Buffer
-	if task.body != "" {
-		buf = bytes.NewBufferString(task.body)
+	var (
+		req *http.Request
+		err error
+	)
+	if task.body == "" {
+		req, err = http.NewRequest(task.method, task.url, nil)
+	} else {
+		req, err = http.NewRequest(task.method, task.url, bytes.NewBufferString(task.body))
 	}
-
-	req, err := http.NewRequest(task.method, task.url, buf)
 	if err != nil {
 		return err
 	}
@@ -100,6 +106,11 @@ func (task *task) Exec(logger *logrus.Logger) error {
 	resp, err := task.client.Do(req)
 	if err != nil {
 		return err
+	}
+
+	if resp.StatusCode != task.successHTTPStatus {
+		_ = resp.Body.Close()
+		return fmt.Errorf("returned HTTP status: %v", resp.StatusCode)
 	}
 
 	return resp.Body.Close()
@@ -163,6 +174,11 @@ func (executor taskExecutor) NewTask(eventID, rule, alert string, blockTTL time.
 		if err == nil {
 			timeout = tm
 		}
+	}
+
+	task.successHTTPStatus = defaultSuccessHTTPStatus
+	if status, ok := preparedParameters[paramSuccessHTTPStatus].(int); ok && status > 0 {
+		task.successHTTPStatus = status
 	}
 
 	task.client = executor.clientGen(timeout)
