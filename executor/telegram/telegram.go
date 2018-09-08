@@ -78,13 +78,13 @@ func (executor taskExecutor) ValidateParameters(parameters map[string]interface{
 		}
 	}
 
-	_, ok := parameters[paramChatID]
+	chatIDStr, ok := parameters[paramChatID]
 	if !ok {
 		return fmt.Errorf("required parameter %v is missing", paramChatID)
 	}
 
-	if _, ok := parameters[paramChatID].(int); !ok {
-		if _, ok := parameters[paramChatID].(float64); !ok {
+	if _, ok := chatIDStr.(int); !ok {
+		if _, ok := chatIDStr.(float64); !ok {
 			return fmt.Errorf("%v parameter value is not a number", paramChatID)
 		}
 	}
