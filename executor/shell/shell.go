@@ -2,6 +2,7 @@ package shell
 
 import (
 	"errors"
+	"fmt"
 	"github.com/lohmag/prometheus-alert-webhooker/executor"
 	"github.com/lohmag/prometheus-alert-webhooker/utils"
 	"github.com/sirupsen/logrus"
@@ -60,6 +61,7 @@ func (executor taskExecutor) ValidateParameters(parameters map[string]interface{
 }
 
 func (executor taskExecutor) NewTask(eventID, rule, alert string, blockTTL time.Duration, preparedParameters map[string]interface{}) executor.Task {
+	fmt.Printf("%+v\n", preparedParameters[paramArgs].([]string))
 	task := &task{
 		execFunc: executor.execFunc,
 		command:  preparedParameters[paramCommand].(string),
