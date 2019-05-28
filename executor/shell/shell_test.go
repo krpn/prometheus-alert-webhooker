@@ -3,7 +3,7 @@ package shell
 import (
 	"bytes"
 	"errors"
-	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/lohmag/prometheus-alert-webhooker/executor"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"os/exec"

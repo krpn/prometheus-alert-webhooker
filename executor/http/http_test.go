@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"github.com/golang/mock/gomock"
-	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/lohmag/prometheus-alert-webhooker/executor"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"

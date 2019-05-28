@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/mock/gomock"
-	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/lohmag/prometheus-alert-webhooker/executor"
 	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
 	"regexp"

@@ -1,6 +1,6 @@
 # prometheus-alert-webhooker
 
-[![Build Status](https://travis-ci.org/krpn/prometheus-alert-webhooker.svg?branch=master)](https://travis-ci.org/krpn/prometheus-alert-webhooker) [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=krpn_prometheus-alert-webhooker&metric=alert_status)](https://sonarcloud.io/dashboard?id=krpn_prometheus-alert-webhooker) [![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=krpn_prometheus-alert-webhooker&metric=coverage)](https://sonarcloud.io/component_measures?id=krpn_prometheus-alert-webhooker&metric=coverage) [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=krpn_prometheus-alert-webhooker&metric=sqale_index)](https://sonarcloud.io/component_measures?id=krpn_prometheus-alert-webhooker&metric=sqale_index) [![License](https://img.shields.io/github/license/krpn/prometheus-alert-webhooker.svg)](https://github.com/krpn/prometheus-alert-webhooker/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/lohmag/prometheus-alert-webhooker.svg?branch=master)](https://travis-ci.org/lohmag/prometheus-alert-webhooker) [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=lohmag_prometheus-alert-webhooker&metric=alert_status)](https://sonarcloud.io/dashboard?id=lohmag_prometheus-alert-webhooker) [![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=lohmag_prometheus-alert-webhooker&metric=coverage)](https://sonarcloud.io/component_measures?id=lohmag_prometheus-alert-webhooker&metric=coverage) [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=lohmag_prometheus-alert-webhooker&metric=sqale_index)](https://sonarcloud.io/component_measures?id=lohmag_prometheus-alert-webhooker&metric=sqale_index) [![License](https://img.shields.io/github/license/lohmag/prometheus-alert-webhooker.svg)](https://github.com/lohmag/prometheus-alert-webhooker/blob/master/LICENSE)
 
 prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/integrations/#alertmanager-webhook-receiver) to any action
 
@@ -25,27 +25,27 @@ prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://pr
     * run shell command
     * send Telegram message
 * Alert labels/annotations can be used in action placeholders
-* Rules are set in config and can be flexible ([example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml))
+* Rules are set in config and can be flexible ([example](https://github.com/lohmag/prometheus-alert-webhooker/blob/master/example/config.yaml))
 * Supported config types JSON, TOML, YAML, HCL, and Java properties ([Viper](https://github.com/spf13/viper) is used)
 * Supported config providers: file, etcd, consul (with automatic refresh)
 * Prometheus metrics built in
-* A docker image available on [Docker Hub](https://hub.docker.com/r/krpn/prometheus-alert-webhooker/)
+* A docker image available on [Docker Hub](https://hub.docker.com/r/lohmag/prometheus-alert-webhooker/)
 
 [(back to top)](#prometheus-alert-webhooker)
 
 # Quick Start
 
-1. Prepare config.yaml file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml) (details in [configuration](#configuration))
+1. Prepare config.yaml file based on [example](https://github.com/lohmag/prometheus-alert-webhooker/blob/master/example/config.yaml) (details in [configuration](#configuration))
 
 2. Run container with command ([cli flags](#command-line-flags)):
 
     If you use file config:
     
-    `docker run -d -p <port>:8080 -v <path to config.yaml>:/config --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker --verbose`
+    `docker run -d -p <port>:8080 -v <path to config.yaml>:/config --name prometheus-alert-webhooker lohmag/prometheus-alert-webhooker --verbose`
     
     If you use Consul:
     
-    `docker run -d -p <port>:8080 --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker --verbose --provider consul --config http://<consul address>:8500/v1/kv/<path to config>`
+    `docker run -d -p <port>:8080 --name prometheus-alert-webhooker lohmag/prometheus-alert-webhooker --verbose --provider consul --config http://<consul address>:8500/v1/kv/<path to config>`
 
 3. Checkout logs:
 
@@ -242,6 +242,6 @@ Usage: `prometheus-alert-webhooker [<flags>]`
 
 # Contribute
 
-Please feel free to send me [pull requests](https://github.com/krpn/prometheus-alert-webhooker/pulls).
+Please feel free to send me [pull requests](https://github.com/lohmag/prometheus-alert-webhooker/pulls).
 
 [(back to top)](#prometheus-alert-webhooker)

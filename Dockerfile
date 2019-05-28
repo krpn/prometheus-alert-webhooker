@@ -7,9 +7,9 @@ RUN \
     curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 RUN \
-    mkdir -p src/github.com/krpn && \
-    cd src/github.com/krpn && \
-    git clone https://github.com/krpn/prometheus-alert-webhooker && \
+    mkdir -p src/github.com/lohmag && \
+    cd src/github.com/lohmag && \
+    git clone https://github.com/lohmag/prometheus-alert-webhooker && \
     cd prometheus-alert-webhooker && \
     dep ensure -v && \
     go test ./... && \
@@ -18,7 +18,7 @@ RUN \
 
 
 FROM alpine:3.8
-COPY --from=builder /go/src/github.com/krpn/prometheus-alert-webhooker/cmd/prometheus-alert-webhooker/prometheus-alert-webhooker /
+COPY --from=builder /go/src/github.com/lohmag/prometheus-alert-webhooker/cmd/prometheus-alert-webhooker/prometheus-alert-webhooker /
 RUN apk add --no-cache ca-certificates tzdata
 EXPOSE 8080
 ENTRYPOINT ["/prometheus-alert-webhooker"]

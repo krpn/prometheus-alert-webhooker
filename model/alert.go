@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/krpn/prometheus-alert-webhooker/utils"
+	"github.com/lohmag/prometheus-alert-webhooker/utils"
 	"github.com/prometheus/common/model"
 	"regexp"
 )

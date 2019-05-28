@@ -2,8 +2,8 @@ package shell
 
 import (
 	"errors"
-	"github.com/krpn/prometheus-alert-webhooker/executor"
-	"github.com/krpn/prometheus-alert-webhooker/utils"
+	"github.com/lohmag/prometheus-alert-webhooker/executor"
+	"github.com/lohmag/prometheus-alert-webhooker/utils"
 	"github.com/sirupsen/logrus"
 	"os/exec"
 	"time"
