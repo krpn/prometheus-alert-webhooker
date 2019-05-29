@@ -2,9 +2,8 @@ package shell
 
 import (
 	"errors"
-	"fmt"
-	"github.com/lohmag/prometheus-alert-webhooker/executor"
-	"github.com/lohmag/prometheus-alert-webhooker/utils"
+	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/krpn/prometheus-alert-webhooker/utils"
 	"github.com/sirupsen/logrus"
 	"os/exec"
 	"time"
@@ -33,7 +32,8 @@ func (task *task) Fingerprint() string {
 }
 
 func (task *task) Exec(logger *logrus.Logger) error {
-	_, err := task.execFunc(task.command, task.args...).Output()
+	cmd := task.execFunc(task.command, task.args...)
+	_, err := cmd.Output()
 	return err
 }
 
@@ -61,11 +61,19 @@ func (executor taskExecutor) ValidateParameters(parameters map[string]interface{
 }
 
 func (executor taskExecutor) NewTask(eventID, rule, alert string, blockTTL time.Duration, preparedParameters map[string]interface{}) executor.Task {
-	fmt.Printf("%+v\n", preparedParameters[paramArgs].([]string))
+
+	var args []string
+	if _, ok := preparedParameters[paramArgs]; ok {
+		argsIface := preparedParameters[paramArgs].([]interface{})
+		args = make([]string, len(argsIface))
+		for i := range argsIface {
+			args[i] = argsIface[i].(string)
+		}
+	}
 	task := &task{
 		execFunc: executor.execFunc,
 		command:  preparedParameters[paramCommand].(string),
-		args:     preparedParameters[paramArgs].([]string),
+		args:     args,
 	}
 	task.SetBase(eventID, rule, alert, blockTTL)
 	return task
