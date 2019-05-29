@@ -1,7 +1,7 @@
 package runner
 
 import (
-	"github.com/lohmag/prometheus-alert-webhooker/executor"
+	"github.com/krpn/prometheus-alert-webhooker/executor"
 	"github.com/sirupsen/logrus"
 )
 

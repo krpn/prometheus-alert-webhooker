@@ -1,9 +1,9 @@
 package runner
 
 import (
-	"github.com/lohmag/prometheus-alert-webhooker/executor"
-	"github.com/lohmag/prometheus-alert-webhooker/model"
-	"github.com/lohmag/prometheus-alert-webhooker/utils"
+	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/krpn/prometheus-alert-webhooker/model"
+	"github.com/krpn/prometheus-alert-webhooker/utils"
 	"github.com/sirupsen/logrus"
 	"sync"
 	"time"
