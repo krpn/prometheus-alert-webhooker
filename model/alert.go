@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/krpn/prometheus-alert-webhooker/utils"
+	"github.com/lohmag/prometheus-alert-webhooker/utils"
 	"github.com/prometheus/common/model"
+	"reflect"
 	"regexp"
 )
 
@@ -87,22 +88,38 @@ func prepareParams(params map[string]interface{}, alert alert) map[string]interf
 	preparedParams := make(map[string]interface{}, len(params))
 
 	for param, value := range params {
-		valueStr, ok := value.(string)
-		if !ok {
-			preparedParams[param] = value
-			continue
-		}
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.Slice:
+			var newValue []interface{}
+			paramsIface := value.([]interface{})
+			for _, valueIface := range paramsIface {
+				if reflect.TypeOf(valueIface).Kind() == reflect.String {
+					valueStr := valueIface.(string)
+					newValue = append(newValue, prepareParam(alert, valueStr))
+				}
+			}
+			preparedParams[param] = newValue
+		default:
+			valueStr, ok := value.(string)
+			if !ok {
+				preparedParams[param] = value
+				continue
+			}
 
-		for annotation, value := range alert.Annotations {
-			valueStr = utils.ReplacePlaceholders(valueStr, "ANNOTATION", annotation, value)
+			preparedParams[param] = prepareParam(alert, valueStr)
 		}
+	}
+	return preparedParams
+}
 
-		for label, value := range alert.Labels {
-			valueStr = utils.ReplacePlaceholders(valueStr, "LABEL", label, value)
-		}
-
-		preparedParams[param] = valueStr
+func prepareParam(alert alert, value string) string {
+	for annotation, annotationValue := range alert.Annotations {
+		value = utils.ReplacePlaceholders(value, "ANNOTATION", annotation, annotationValue)
 	}
 
-	return preparedParams
+	for label, labelValue := range alert.Labels {
+		value = utils.ReplacePlaceholders(value, "LABEL", label, labelValue)
+	}
+
+	return value
 }

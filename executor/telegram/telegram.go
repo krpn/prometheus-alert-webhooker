@@ -3,8 +3,8 @@ package telegram
 import (
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/krpn/prometheus-alert-webhooker/executor"
-	"github.com/krpn/prometheus-alert-webhooker/utils"
+	"github.com/lohmag/prometheus-alert-webhooker/executor"
+	"github.com/lohmag/prometheus-alert-webhooker/utils"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"

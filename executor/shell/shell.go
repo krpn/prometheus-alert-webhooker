@@ -2,8 +2,9 @@ package shell
 
 import (
 	"errors"
-	"github.com/krpn/prometheus-alert-webhooker/executor"
-	"github.com/krpn/prometheus-alert-webhooker/utils"
+	"fmt"
+	"github.com/lohmag/prometheus-alert-webhooker/executor"
+	"github.com/lohmag/prometheus-alert-webhooker/utils"
 	"github.com/sirupsen/logrus"
 	"os/exec"
 	"time"
@@ -32,6 +33,7 @@ func (task *task) Fingerprint() string {
 }
 
 func (task *task) Exec(logger *logrus.Logger) error {
+	fmt.Printf("%#v\n", task.args)
 	cmd := task.execFunc(task.command, task.args...)
 	_, err := cmd.Output()
 	return err

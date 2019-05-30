@@ -13,7 +13,7 @@ jobs:
       name: SonarQube Scanner
       addons:
         sonarcloud:
-          organization: "krpn-github"
+          organization: "lohmag-github"
           token:
             secure: $SONAR_TOKEN
       install:
