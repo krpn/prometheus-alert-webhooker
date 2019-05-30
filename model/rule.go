@@ -3,8 +3,8 @@ package model
 import (
 	"errors"
 	"fmt"
-	"github.com/lohmag/prometheus-alert-webhooker/executor"
-	"github.com/lohmag/prometheus-alert-webhooker/utils"
+	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/krpn/prometheus-alert-webhooker/utils"
 	"github.com/prometheus/common/model"
 	"regexp"
 	"strings"

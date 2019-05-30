@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/lohmag/prometheus-alert-webhooker/executor"
+	"github.com/krpn/prometheus-alert-webhooker/executor"
 	"time"
 )
 

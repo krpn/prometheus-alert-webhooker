@@ -2,8 +2,8 @@ package webhook
 
 import (
 	"encoding/json"
-	"github.com/lohmag/prometheus-alert-webhooker/model"
-	"github.com/lohmag/prometheus-alert-webhooker/utils"
+	"github.com/krpn/prometheus-alert-webhooker/model"
+	"github.com/krpn/prometheus-alert-webhooker/utils"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"

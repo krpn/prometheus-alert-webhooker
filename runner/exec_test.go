@@ -3,7 +3,7 @@ package runner
 import (
 	"errors"
 	"github.com/golang/mock/gomock"
-	"github.com/lohmag/prometheus-alert-webhooker/executor"
+	"github.com/krpn/prometheus-alert-webhooker/executor"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
