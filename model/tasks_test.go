@@ -61,7 +61,7 @@ func TestNewTasks(t *testing.T) {
 			expectFunc: func(e *executor.MockTaskExecutor) {
 				e.EXPECT().NewTask("4a72", "testrule1", "testalert1", 1*time.Second, map[string]interface{}{
 					"command": "marshaller function | unmarshal+error%26 | server.domain.com | instance down",
-					"args": []interface{}{"arg1", "instance down", 10},
+					"args": []interface{}{"arg1", "instance down"},
 				}).Return(task)
 			},
 			expected: Tasks{

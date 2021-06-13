@@ -93,7 +93,6 @@ func prepareParams(params map[string]interface{}, alert alert) map[string]interf
 			for _, valueIface := range v {
 				valueStr, ok := valueIface.(string)
 				if !ok {
-					newValue = append(newValue, valueIface)
 					continue
 				}
 				newValue = append(newValue, prepareParam(alert, valueStr))
