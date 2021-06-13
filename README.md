@@ -188,10 +188,10 @@ Executors and it parameters described below.
 
 `shell` is used for run unix shell command. *Remember: all shell scripts must be mounted if you use Docker.*
 
-| Parameter | Type     | Description         | Example                               |
-|-----------|:--------:|---------------------|---------------------------------------|
-| `command` | `string` | Command for execute | `command: ./clean.sh ${LABEL_FOLDER}` |
-| `args` | `array` | (optional) arguments for command | `"args": ["-i","/root/.ssh/id_rsa"]` |
+| Parameter | Type     | Description                      | Example                               |
+|-----------|:--------:|----------------------------------|---------------------------------------|
+| `command` | `string` | Command for execute              | `command: ./clean.sh ${LABEL_FOLDER}` |
+| `args`    | `array`  | (optional) arguments for command | `args: ['-i', '/root/.ssh/id_rsa']`  |
 
 ## Executor `http`
 
