@@ -114,7 +114,6 @@ func prepareParam(alert alert, param string) string {
 	for annotation, annotationValue := range alert.Annotations {
 		param = utils.ReplacePlaceholders(param, "ANNOTATION", annotation, annotationValue)
 	}
-
 	for label, labelValue := range alert.Labels {
 		param = utils.ReplacePlaceholders(param, "LABEL", label, labelValue)
 	}
