@@ -14,8 +14,7 @@ jobs:
       addons:
         sonarcloud:
           organization: "krpn-github"
-          token:
-            secure: $SONAR_TOKEN
+          token: $SONAR_TOKEN
       install:
         - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
         - dep ensure -v
