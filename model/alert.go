@@ -3,7 +3,6 @@ package model
 import (
 	"github.com/krpn/prometheus-alert-webhooker/utils"
 	"github.com/prometheus/common/model"
-	"reflect"
 	"regexp"
 )
 
@@ -88,15 +87,16 @@ func prepareParams(params map[string]interface{}, alert alert) map[string]interf
 	preparedParams := make(map[string]interface{}, len(params))
 
 	for param, value := range params {
-		switch reflect.TypeOf(value).Kind() {
-		case reflect.Slice:
+		switch v := value.(type) {
+		case []interface{}:
 			var newValue []interface{}
-			paramsIface := value.([]interface{})
-			for _, valueIface := range paramsIface {
-				if reflect.TypeOf(valueIface).Kind() == reflect.String {
-					valueStr := valueIface.(string)
-					newValue = append(newValue, prepareParam(alert, valueStr))
+			for _, valueIface := range v {
+				valueStr, ok := valueIface.(string)
+				if !ok {
+					newValue = append(newValue, valueIface)
+					continue
 				}
+				newValue = append(newValue, prepareParam(alert, valueStr))
 			}
 			preparedParams[param] = newValue
 		default:
@@ -105,7 +105,6 @@ func prepareParams(params map[string]interface{}, alert alert) map[string]interf
 				preparedParams[param] = value
 				continue
 			}
-
 			preparedParams[param] = prepareParam(alert, valueStr)
 		}
 	}
