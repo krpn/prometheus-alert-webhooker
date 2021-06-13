@@ -110,14 +110,13 @@ func prepareParams(params map[string]interface{}, alert alert) map[string]interf
 	return preparedParams
 }
 
-func prepareParam(alert alert, value string) string {
+func prepareParam(alert alert, param string) string {
 	for annotation, annotationValue := range alert.Annotations {
-		value = utils.ReplacePlaceholders(value, "ANNOTATION", annotation, annotationValue)
+		param = utils.ReplacePlaceholders(param, "ANNOTATION", annotation, annotationValue)
 	}
 
 	for label, labelValue := range alert.Labels {
-		value = utils.ReplacePlaceholders(value, "LABEL", label, labelValue)
+		param = utils.ReplacePlaceholders(param, "LABEL", label, labelValue)
 	}
-
-	return value
+	return param
 }
