@@ -34,6 +34,7 @@ jobs:
       if: branch = master
       install: skip
       script:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
         - export IMAGE=$DOCKER_USER/$DOCKER_REPOSITORY
         - export TAG="latest"
         - docker build -f Dockerfile -t $IMAGE:$TAG .
