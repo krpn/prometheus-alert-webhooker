@@ -33,7 +33,6 @@ func (task *task) Fingerprint() string {
 }
 
 func (task *task) Exec(logger *logrus.Logger) error {
-	fmt.Printf("%#v\n", task.args)
 	cmd := task.execFunc(task.command, task.args...)
 	_, err := cmd.Output()
 	return err
