@@ -9,8 +9,10 @@ import (
 	"time"
 )
 
-const paramCommand = "command"
-const paramArgs = "args"
+const (
+	paramCommand = "command"
+	paramArgs    = "args"
+)
 
 type task struct {
 	executor.TaskBase
@@ -64,7 +66,7 @@ func (executor taskExecutor) NewTask(eventID, rule, alert string, blockTTL time.
 
 	var args []string
 	if _, ok := preparedParameters[paramArgs]; ok {
-		argsIface := preparedParameters[paramArgs].([]interface{})
+		argsIface, _ := preparedParameters[paramArgs].([]interface{})
 		args = make([]string, len(argsIface))
 		for i := range argsIface {
 			args[i] = argsIface[i].(string)
