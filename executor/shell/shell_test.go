@@ -3,12 +3,13 @@ package shell
 import (
 	"bytes"
 	"errors"
-	"github.com/krpn/prometheus-alert-webhooker/executor"
-	"github.com/sirupsen/logrus/hooks/test"
-	"github.com/stretchr/testify/assert"
 	"os/exec"
 	"testing"
 	"time"
+
+	"github.com/krpn/prometheus-alert-webhooker/executor"
+	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestShellTask_ExecutorInterface(t *testing.T) {
@@ -73,10 +74,11 @@ func TestShellTaskExecutor_NewTask(t *testing.T) {
 
 	executorMock := NewExecutor(nil)
 
-	testTask := executorMock.NewTask("825e", "testrule1", "testalert1", 1*time.Second, map[string]interface{}{"command": "some cmd"})
+	testTask := executorMock.NewTask("825e", "testrule1", "testalert1", 1*time.Second, map[string]interface{}{"command": "some cmd", "args": []interface{}{"arg1", "arg2"}})
 	expected := &task{
 		execFunc: nil,
 		command:  "some cmd",
+		args:     []string{"arg1", "arg2"},
 	}
 	expected.SetBase("825e", "testrule1", "testalert1", 1*time.Second)
 

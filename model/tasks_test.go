@@ -38,6 +38,7 @@ func TestNewTasks(t *testing.T) {
 						Executor: "shell",
 						Parameters: map[string]interface{}{
 							"command": "${LABEL_BLOCK} | ${URLENCODE_LABEL_ERROR} | ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} | ${ANNOTATION_TITLE}",
+							"args": []interface{}{"arg1", "${ANNOTATION_TITLE}", 10},
 						},
 						Block:        1 * time.Second,
 						TaskExecutor: executorMock,
@@ -60,6 +61,7 @@ func TestNewTasks(t *testing.T) {
 			expectFunc: func(e *executor.MockTaskExecutor) {
 				e.EXPECT().NewTask("4a72", "testrule1", "testalert1", 1*time.Second, map[string]interface{}{
 					"command": "marshaller function | unmarshal+error%26 | server.domain.com | instance down",
+					"args": []interface{}{"arg1", "instance down"},
 				}).Return(task)
 			},
 			expected: Tasks{

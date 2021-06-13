@@ -9,12 +9,16 @@ import (
 	"time"
 )
 
-const paramCommand = "command"
+const (
+	paramCommand = "command"
+	paramArgs    = "args"
+)
 
 type task struct {
 	executor.TaskBase
 	execFunc func(name string, arg ...string) *exec.Cmd
 	command  string
+	args     []string
 }
 
 func (task *task) ExecutorName() string {
@@ -30,7 +34,8 @@ func (task *task) Fingerprint() string {
 }
 
 func (task *task) Exec(logger *logrus.Logger) error {
-	_, err := task.execFunc(task.command).Output()
+	cmd := task.execFunc(task.command, task.args...)
+	_, err := cmd.Output()
 	return err
 }
 
@@ -58,9 +63,19 @@ func (executor taskExecutor) ValidateParameters(parameters map[string]interface{
 }
 
 func (executor taskExecutor) NewTask(eventID, rule, alert string, blockTTL time.Duration, preparedParameters map[string]interface{}) executor.Task {
+
+	var args []string
+	if _, ok := preparedParameters[paramArgs]; ok {
+		argsIface := preparedParameters[paramArgs].([]interface{})
+		args = make([]string, len(argsIface))
+		for i := range argsIface {
+			args[i] = argsIface[i].(string)
+		}
+	}
 	task := &task{
 		execFunc: executor.execFunc,
 		command:  preparedParameters[paramCommand].(string),
+		args:     args,
 	}
 	task.SetBase(eventID, rule, alert, blockTTL)
 	return task

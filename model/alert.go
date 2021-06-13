@@ -87,22 +87,35 @@ func prepareParams(params map[string]interface{}, alert alert) map[string]interf
 	preparedParams := make(map[string]interface{}, len(params))
 
 	for param, value := range params {
-		valueStr, ok := value.(string)
-		if !ok {
-			preparedParams[param] = value
-			continue
+		switch v := value.(type) {
+		case []interface{}:
+			var newValue []interface{}
+			for _, valueIface := range v {
+				valueStr, ok := valueIface.(string)
+				if !ok {
+					continue
+				}
+				newValue = append(newValue, prepareParam(alert, valueStr))
+			}
+			preparedParams[param] = newValue
+		default:
+			valueStr, ok := value.(string)
+			if !ok {
+				preparedParams[param] = value
+				continue
+			}
+			preparedParams[param] = prepareParam(alert, valueStr)
 		}
-
-		for annotation, value := range alert.Annotations {
-			valueStr = utils.ReplacePlaceholders(valueStr, "ANNOTATION", annotation, value)
-		}
-
-		for label, value := range alert.Labels {
-			valueStr = utils.ReplacePlaceholders(valueStr, "LABEL", label, value)
-		}
-
-		preparedParams[param] = valueStr
 	}
-
 	return preparedParams
+}
+
+func prepareParam(alert alert, param string) string {
+	for annotation, annotationValue := range alert.Annotations {
+		param = utils.ReplacePlaceholders(param, "ANNOTATION", annotation, annotationValue)
+	}
+	for label, labelValue := range alert.Labels {
+		param = utils.ReplacePlaceholders(param, "LABEL", label, labelValue)
+	}
+	return param
 }
