@@ -66,7 +66,7 @@ func (executor taskExecutor) NewTask(eventID, rule, alert string, blockTTL time.
 
 	var args []string
 	if _, ok := preparedParameters[paramArgs]; ok {
-		argsIface, _ := preparedParameters[paramArgs].([]interface{})
+		argsIface := preparedParameters[paramArgs].([]interface{})
 		args = make([]string, len(argsIface))
 		for i := range argsIface {
 			args[i] = argsIface[i].(string)
