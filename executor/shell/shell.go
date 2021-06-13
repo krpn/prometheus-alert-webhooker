@@ -2,7 +2,6 @@ package shell
 
 import (
 	"errors"
-	"fmt"
 	"github.com/krpn/prometheus-alert-webhooker/executor"
 	"github.com/krpn/prometheus-alert-webhooker/utils"
 	"github.com/sirupsen/logrus"
