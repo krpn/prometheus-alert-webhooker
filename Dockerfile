@@ -19,6 +19,6 @@ RUN \
 
 FROM alpine:3.8
 COPY --from=builder /go/src/github.com/krpn/prometheus-alert-webhooker/cmd/prometheus-alert-webhooker/prometheus-alert-webhooker /
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata curl
 EXPOSE 8080
 ENTRYPOINT ["/prometheus-alert-webhooker"]
