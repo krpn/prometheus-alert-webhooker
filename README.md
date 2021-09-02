@@ -241,6 +241,31 @@ Usage: `prometheus-alert-webhooker [<flags>]`
 
 [(back to top)](#prometheus-alert-webhooker)
 
+# Testing your configuration
+Once your service is running you might like to test your rules to make sure they are firing as expected. This is a small curl command that you can use to submit a mock alert to your webhooker service, please replace the server and port appropriately. You may also add more annotations and labels to match the payloads you will receive from your own alertmanager alerts.
+```
+curl -i -X POST https://<server>:<port>/webhooker -d '{
+  "version": "4",
+  "status": "firing",
+  "groupKey": "testing",
+  "truncatedAlerts": 0,
+  "alerts": [
+    {
+      "annotations": {
+          "name": "TestAlert"
+      },
+      "labels": {
+          "alertname": "testalert1",
+          "instance": "testinstance1",
+          "source": "jenkins"
+      }
+    }
+  ]
+}'
+```
+
+[(back to top)](#prometheus-alert-webhooker)
+
 # Contribute
 
 Please feel free to send me [pull requests](https://github.com/krpn/prometheus-alert-webhooker/pulls).
