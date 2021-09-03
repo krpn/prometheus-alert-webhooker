@@ -148,8 +148,8 @@ rules:
     #   ${LABEL_ALERTNAME} - alert name
     #   ${ANNOTATION_COMMAND} - value from annotation "command"
     #   ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} - instance without port
-    #   ${URLENCODE_ANNOTATIONS_SUMMARY} - urlencoded value from annotation "summary"
-    #   ${JSON_ESCAPE_ANNOTATIONS_DESCRIPTION} - JSON escaped value from annotation "description"
+    #   ${URLENCODE_ANNOTATION_SUMMARY} - urlencoded value from annotation "summary"
+    #   ${JSON_ESCAPE_ANNOTATION_DESCRIPTION} - JSON escaped value from annotation "description"
     # (!) all unexpected parameters will be ignored
     parameters:
       <parameter_1>: <parameter_1_value>
