@@ -137,8 +137,8 @@ rules:
     # list of parameters for action
     # (!) each executor can have a list of required parameters
     # parameter values can contains placeholders fully in UPPER case:
-    #   ${LABELS_<LABEL_N>} will be replaced by <label_value_n>
-    #   ${ANNOTATIONS_<ANNOTATION_N>} will be replaced by <annotation_value_n>
+    #   ${LABEL_<LABEL_N>} will be replaced by <label_value_n>
+    #   ${ANNOTATION_<ANNOTATION_N>} will be replaced by <annotation_value_n>
     # each placeholder can have one modificator (optionally): ${<MODIFICATOR>LABELS_<LABEL_N>}
     # <MODIFICATOR> list:
     #   URLENCODE_            - escapes the string so it can be safely placed inside a URL query
@@ -146,10 +146,10 @@ rules:
     #   JSON_ESCAPE_          - escapes the string so it can be safely placed inside a JSON value
     # examples:
     #   ${LABEL_ALERTNAME} - alert name
-    #   ${ANNOTATIONS_COMMAND} - value from annotation "command"
+    #   ${ANNOTATION_COMMAND} - value from annotation "command"
     #   ${CUT_AFTER_LAST_COLON_LABEL_INSTANCE} - instance without port
-    #   ${URLENCODE_ANNOTATIONS_SUMMARY} - urlencoded value from annotation "summary"
-    #   ${JSON_ESCAPE_ANNOTATIONS_DESCRIPTION} - JSON escaped value from annotation "description"
+    #   ${URLENCODE_ANNOTATION_SUMMARY} - urlencoded value from annotation "summary"
+    #   ${JSON_ESCAPE_ANNOTATION_DESCRIPTION} - JSON escaped value from annotation "description"
     # (!) all unexpected parameters will be ignored
     parameters:
       <parameter_1>: <parameter_1_value>
