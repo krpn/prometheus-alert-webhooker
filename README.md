@@ -9,6 +9,7 @@ prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://pr
 * [Features](#features)
 * [Quick Start](#quick-start)
 * [Configuration](#configuration)
+* [Understanding blocking](#understanding-blocking)
 * [Executors](#executors)
   * [Executor `jenkins`](#executor-jenkins)
   * [Executor `shell`](#executor-shell)
@@ -158,6 +159,7 @@ rules:
       <parameter_n>: <parameter_n_value>
     
     # block time for successfully executed action
+    # check Understanding blocking section
     # used for occasional exec
     # (!) blocks only unique set of parameters for this action
     # will not block if zero
@@ -165,6 +167,12 @@ rules:
     # default if not set: 0s
     block: 10m
 ```
+
+[(back to top)](#prometheus-alert-webhooker)
+
+## Understanding blocking
+
+webhooker endpoint could be touched by Alertmanager many times depends on Alertmanager settings. webhooker is able to block similar touches for some period. It prevents duplicated executors runs. For blocked runs, you will see such text in logs: `unsuccessful result, stopping group: in_block`.
 
 [(back to top)](#prometheus-alert-webhooker)
 
