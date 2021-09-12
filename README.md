@@ -4,26 +4,28 @@
 
 prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://prometheus.io/docs/operating/integrations/#alertmanager-webhook-receiver) to any action
 
-# Table of Contents
+## Table of Contents
+
 * [Features](#features)
 * [Quick Start](#quick-start)
 * [Configuration](#configuration)
 * [Executors](#executors)
-    * [Executor `jenkins`](#executor-jenkins)
-    * [Executor `shell`](#executor-shell)
-    * [Executor `http`](#executor-http)
-    * [Executor `telegram`](#executor-telegram)
+  * [Executor `jenkins`](#executor-jenkins)
+  * [Executor `shell`](#executor-shell)
+  * [Executor `http`](#executor-http)
+  * [Executor `telegram`](#executor-telegram)
 * [Command-Line Flags](#command-line-flags)
 * [Exposed Prometheus Metrics](#exposed-prometheus-metrics)
+* [Testing your configuration](#testing-your-configuration)
 * [Contribute](#contribute)
 
-# Features
+## Features
 
 * Converts Prometheus Alertmanager Webhook to any action using rules
 * Currently supports actions (see [executors](#executors)):
-    * run Jenkins job (optionally with parameters)
-    * run shell command
-    * send Telegram message
+  * run Jenkins job (optionally with parameters)
+  * run shell command
+  * send Telegram message
 * Alert labels/annotations can be used in action placeholders
 * Rules are set in config and can be flexible ([example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml))
 * Supported config types JSON, TOML, YAML, HCL, and Java properties ([Viper](https://github.com/spf13/viper) is used)
@@ -33,18 +35,18 @@ prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://pr
 
 [(back to top)](#prometheus-alert-webhooker)
 
-# Quick Start
+## Quick Start
 
 1. Prepare config.yaml file based on [example](https://github.com/krpn/prometheus-alert-webhooker/blob/master/example/config.yaml) (details in [configuration](#configuration))
 
 2. Run container with command ([cli flags](#command-line-flags)):
 
     If you use file config:
-    
+
     `docker run -d -p <port>:8080 -v <path to config.yaml>:/config --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker --verbose`
-    
+
     If you use Consul:
-    
+
     `docker run -d -p <port>:8080 --name prometheus-alert-webhooker krpn/prometheus-alert-webhooker --verbose --provider consul --config http://<consul address>:8500/v1/kv/<path to config>`
 
 3. Checkout logs:
@@ -54,12 +56,12 @@ prometheus-alert-webhooker converts [Prometheus Alertmanager Webhook](https://pr
 4. Add webhook to [Alertmanager webhook config](https://prometheus.io/docs/alerting/configuration/#webhook_config). url will be:
 
     `url: http://<server container runned on>:<port>/webhooker`
-    
+
 5. Add webhooker instance to [Prometheus scrape targets](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#%3Cscrape_config%3E) if needed (port is the same; [metrics](#exposed-prometheus-metrics))
 
 [(back to top)](#prometheus-alert-webhooker)
 
-# Configuration
+## Configuration
 
 Configuration description based on YAML format:
 
@@ -166,11 +168,11 @@ rules:
 
 [(back to top)](#prometheus-alert-webhooker)
 
-# Executors
+## Executors
 
 Executors and it parameters described below.
 
-## Executor `jenkins`
+### Executor `jenkins`
 
 `jenkins` is used for run Jenkins jobs. Runner starts job, waits job finish and check it was successfull.
 
@@ -184,7 +186,7 @@ Executors and it parameters described below.
 | `state_refresh_delay`            | `duration` | (optional, default: 15s) How often runner will be refresh job status when executing                                          | `state_refresh_delay: 3s`                                      |
 | `secure_interations_limit`       | `integer`  | (optional, default: 1000) How many refresh status iterations will be until Job will be considered hung and runner release it | `secure_interations_limit: 500`                                |
 
-## Executor `shell`
+### Executor `shell`
 
 `shell` is used for run unix shell command. *Remember: all shell scripts must be mounted if you use Docker.*
 
@@ -193,7 +195,7 @@ Executors and it parameters described below.
 | `command` | `string`           | Command for execute              | `command: ./clean.sh ${LABEL_FOLDER}` |
 | `args`    | `array of strings` | (optional) arguments for command | `args: ['-i', '/root/.ssh/id_rsa']`  |
 
-## Executor `http`
+### Executor `http`
 
 `http` is used for making HTTP requests.
 
@@ -206,7 +208,7 @@ Executors and it parameters described below.
 | `timeout`              | `duration` | (optional, default: 1s) Request timeout                                                      | `timeout: 100ms`                                           |
 | `success_http_status`  | `integer`  | (optional, default: 200) Success response status code, will be checked after request execute | `success_http_status: 201`                                 |
 
-## Executor `telegram`
+### Executor `telegram`
 
 `telegram` is used for handy notifications about webhooker events.
 
@@ -218,7 +220,7 @@ Executors and it parameters described below.
 
 [(back to top)](#prometheus-alert-webhooker)
 
-# Command-Line Flags
+## Command-Line Flags
 
 Usage: `prometheus-alert-webhooker [<flags>]`
 
@@ -232,7 +234,7 @@ Usage: `prometheus-alert-webhooker [<flags>]`
 
 [(back to top)](#prometheus-alert-webhooker)
 
-# Exposed Prometheus Metrics
+## Exposed Prometheus Metrics
 
 | Name                                        | Description                                                                                    | Labels                                     |
 |---------------------------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------|
@@ -241,9 +243,11 @@ Usage: `prometheus-alert-webhooker [<flags>]`
 
 [(back to top)](#prometheus-alert-webhooker)
 
-# Testing your configuration
+## Testing your configuration
+
 Once your service is running you might like to test your rules to make sure they are firing as expected. This is a small curl command that you can use to submit a mock alert to your webhooker service, please replace the server and port appropriately. You may also add more annotations and labels to match the payloads you will receive from your own alertmanager alerts.
-```
+
+```bash
 curl -i -X POST https://<server>:<port>/webhooker -d '{
   "version": "4",
   "status": "firing",
@@ -266,7 +270,7 @@ curl -i -X POST https://<server>:<port>/webhooker -d '{
 
 [(back to top)](#prometheus-alert-webhooker)
 
-# Contribute
+## Contribute
 
 Please feel free to send me [pull requests](https://github.com/krpn/prometheus-alert-webhooker/pulls).
 
